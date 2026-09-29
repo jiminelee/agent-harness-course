@@ -5,7 +5,7 @@
 
 ## Concept
 
-Every module so far was a standalone script. This final module packages
+Every module so far was a standalone script. This module packages
 the core tool-calling loop, tool registry, and tool-error handling into a
 small, **reusable library**. It also introduces three concerns that become
 important when the same core is reused by multiple applications:
@@ -105,8 +105,11 @@ python module11/example_usage.py
 
 ---
 
-This is the final implementation module of the course. You've gone from a
-1-turn LLM call (Module 0), through memory, planning, recovery, guardrails,
+You've gone from a 1-turn LLM call (Module 0), through memory, planning, recovery, guardrails,
 observability, and orchestration patterns, to packaging the reusable core.
 The earlier modules show how to compose their advanced policies and
 workflows around that core when a project needs them.
+
+Next, [Module 12](../module12/README.md) shows how the familiar loop can
+discover and call tools in a separate MCP server. It is a standalone
+integration example; the library here remains the minimal local-tool core.

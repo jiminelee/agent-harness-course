@@ -1,0 +1,3 @@
+# Python 3.10+. Direct dependencies verified together for this module.
+mcp==2.2.0
+openai==3.19.2

@@ -4,7 +4,7 @@ This course teaches you how an "AI agent" is really built, one concept at
 a time, by growing a single project from a 1-turn LLM call into a
 production-shaped agent harness with tools, memory management, planning,
 error recovery, guardrails, observability, multi-agent orchestration, and
-a packaged reusable library.
+a packaged reusable library, followed by external tool integration through MCP.
 
 ## Who this is for
 
@@ -61,6 +61,14 @@ python -m pip install openai
 Run the module commands below while the virtual environment is activated.
 When finished, leave it with `deactivate`.
 
+Module 12 additionally uses the official MCP Python SDK's `MCPServer` and
+`Client` APIs. It requires Python 3.10+; install its verified dependencies
+before running that module:
+
+```bash
+python -m pip install -r module12/requirements.txt
+```
+
 If using Ollama locally:
 ```bash
 ollama pull gemma4:e4b   # recommended default for this course
@@ -80,11 +88,13 @@ If using real OpenAI, set `BASE_URL = "https://api.openai.com/v1"` and
 `API_KEY` to your real key in the config section of whichever module
 you're running.
 
-Every module script is runnable standalone:
+Each implementation module has a standalone entry point:
 ```bash
 python module00/module00_baseline.py
 python module01/module01_agent_loop.py
 # ...etc
+python module12/inspect_tools.py       # MCP only; no model needed
+python module12/module12_mcp_tools.py   # agent using MCP tools
 ```
 
 ## Module Index
@@ -103,7 +113,8 @@ python module01/module01_agent_loop.py
 | [9](module09/README.md) | Observability & Debugging | Structured tracing, saved JSON traces, trace viewer |
 | [10](module10/README.md) | Multi-Agent & Orchestration | Sub-agents-as-tools pattern (researcher + writer) |
 | [11](module11/README.md) | Practical Deployment | Packaged reusable library: cost tracking, caching, prompt versioning |
-| [12](module12/README.md) | Production Roadmap | What to study and harden after completing the course |
+| [12](module12/README.md) | MCP: External Tools | MCPServer + Client, discovery and execution through a local tool server |
+| [13](module13/README.md) | Production Roadmap | What to study and harden after completing the course |
 
 ## Files in this project
 
@@ -127,6 +138,13 @@ module11/
     cache.py
     loop.py
 module12/
+  README.md
+  requirements.txt           # verified MCP + model SDK versions
+  tool_server.py             # independent MCP tool provider
+  inspect_tools.py           # discover/call tools without an LLM
+  module12_mcp_tools.py       # agent loop using MCP tools
+  test_mcp_tools.py           # model-free integration tests
+module13/
   README.md                   # roadmap from educational code to production
 README.md                     # this file
 ```
@@ -142,13 +160,17 @@ README.md                     # this file
 3. Try the "Things to try" section at the end of each module README —
    small modifications that deepen your understanding.
 4. Move to the next module once you're comfortable with the current one's
-   code — remember, the next module's diff will be small; most of the
-   file will look familiar.
+   code. Modules 4-10 are focused variations on the core loop rather than
+   a cumulative implementation of every earlier feature.
 
 By Module 11, you'll have a small reusable core library
 (`module11/agent_harness/`) that a new project could `import` directly
 instead of copy-pasting a script. Modules 4-10 remain focused examples of
 advanced features you can compose around that core.
+
+Module 12 then uses the familiar loop to discover and call tools in a
+separate MCP server. Start with its model-free inspection script before
+running the agent. Finish with Module 13's production roadmap.
 
 ## Caveat: Educational Use Only
 
