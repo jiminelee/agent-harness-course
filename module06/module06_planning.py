@@ -1,5 +1,5 @@
 """
-Module 5: Planning & Task Decomposition
+Module 6: Planning & Task Decomposition
 ==========================================
 Goal: Up to now, our agent has handled tasks turn-by-turn, reactively --
 it never explicitly thinks "here is my overall plan" before diving in.
@@ -18,7 +18,7 @@ New pattern: PLAN-THEN-EXECUTE.
 
 This is the same "plan -> execute -> synthesize" shape used by many
 production agent frameworks (often called "planner/executor" or
-"orchestrator/worker" -- Module 10 will build on this further with actual
+"orchestrator/worker" -- Module 11 will build on this further with actual
 separate sub-agents).
 """
 

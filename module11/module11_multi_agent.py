@@ -1,7 +1,7 @@
 """
-Module 10: Multi-Agent & Orchestration
+Module 11: Multi-Agent & Orchestration
 =========================================
-Goal: Module 5 decomposed a task into subtasks, but ONE agent (with one
+Goal: Module 6 decomposed a task into subtasks, but ONE agent (with one
 fixed toolset and persona) executed all of them. Sometimes you want
 genuinely DIFFERENT specialists -- e.g. a researcher agent (good at using
 search/calculation tools) and a writer agent (good at producing polished

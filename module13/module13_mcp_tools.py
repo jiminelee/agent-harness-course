@@ -1,6 +1,6 @@
-"""Module 12: keep the agent loop; replace local dispatch with MCP.
+"""Module 13: keep the agent loop; replace local dispatch with MCP.
 
-Run: python module12/module12_mcp_tools.py
+Run: python module13/module13_mcp_tools.py
 Read inspect_tools.py first: it demonstrates the same connection without
 requiring a model. SDK 2.x uses MCPServer/Client, not the old v1 examples.
 """

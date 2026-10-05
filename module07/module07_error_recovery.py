@@ -1,5 +1,5 @@
 """
-Module 6: Error Recovery & Self-Correction
+Module 7: Error Recovery & Self-Correction
 =============================================
 Goal: So far, tool errors just got fed back to the model with no limit --
 a model could theoretically retry the same failing tool call forever
@@ -46,7 +46,7 @@ different approach instead of repeating the exact same call.
 """
 
 # ---------------------------------------------------------------------------
-# TOOL REGISTRY (same focused calculate/search_web set as Modules 4/5)
+# TOOL REGISTRY (same focused calculate/search_web set as Modules 4/6)
 # ---------------------------------------------------------------------------
 TOOL_REGISTRY = {}
 TOOLS_SCHEMA = []

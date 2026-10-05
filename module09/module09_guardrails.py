@@ -1,5 +1,5 @@
 """
-Module 8: Guardrails & Safety
+Module 9: Guardrails & Safety
 ===============================
 Goal: So far, ANY tool the model requests gets executed immediately and
 automatically. That's fine for read-only tools like calculate/search_web,
@@ -17,8 +17,8 @@ email, spend money, etc.). This module adds three concrete safety layers:
      whether it succeeded -- this is critical for debugging and compliance
      in a real deployment.
 
-We go back to the synchronous client (like Modules 1-6) here since
-guardrails are a orthogonal concern to async/parallel execution (Module 7)
+We go back to the synchronous client (like Modules 1-7) here since
+guardrails are a orthogonal concern to async/parallel execution (Module 8)
 -- in a real system you'd combine both.
 """
 
@@ -259,7 +259,7 @@ if __name__ == "__main__":
     # real (but low-stakes) to delete, to demonstrate the confirmation flow.
     demo_path = "scratch_demo_file.txt"
     with open(MODULE_DIR / demo_path, "w") as f:
-        f.write("This is a throwaway file created for Module 8's demo.\n")
+        f.write("This is a throwaway file created for Module 9's demo.\n")
 
     task = f"Please delete the file at '{demo_path}' since we no longer need it."
     print(f"USER TASK: {task}")

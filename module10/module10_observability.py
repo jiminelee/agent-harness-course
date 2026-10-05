@@ -1,5 +1,5 @@
 """
-Module 9: Observability & Debugging
+Module 10: Observability & Debugging
 ======================================
 Goal: When something goes wrong deep inside a multi-turn, multi-tool agent
 run, "read the print statements" doesn't scale -- you need a STRUCTURED,

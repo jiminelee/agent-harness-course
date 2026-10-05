@@ -1,65 +1,56 @@
-# Module 10: Multi-Agent & Orchestration
+# Module 10: Observability & Debugging
 
-**File:** `module10_multi_agent.py`
-**Builds on:** Module 3's tool-calling loop shape
+**File:** `module10_observability.py`
+**Builds on:** Module 3's tool registry pattern
 
 ## Concept
 
-Module 5 decomposed a task into subtasks, but one agent (fixed toolset,
-fixed persona) executed all of them. This module introduces genuinely
-different **specialist sub-agents** — a researcher (with real tools) and
-a writer (no tools, pure prose) — coordinated by an orchestrator.
+When something goes wrong deep inside a multi-turn, multi-tool agent run,
+"read the print statements" doesn't scale. This module introduces
+**structured tracing**: every meaningful step (an LLM call, a tool call)
+becomes a well-defined event — `{step, type, input, output, duration_ms,
+timestamp}` — saved to disk as JSON, plus a small viewer to read it back.
 
-The pattern used: **sub-agents as tools**. Each sub-agent is wrapped in a
-plain Python function (`delegate_to_researcher`, `delegate_to_writer`)
-that *looks like a tool* to the orchestrator LLM. When the orchestrator
-"calls" one, a **complete, independent agent loop** runs internally (with
-its own system prompt, tools, and turn limit), and its final answer comes
-back as the "tool result."
+## What's new since Module 3
 
-## What's new since Module 3/5
-
-| Module 3/5 | Module 10 |
+| Module 3 | Module 10 |
 |---|---|
-| One toolset, one persona for the whole run | Multiple personas (`RESEARCHER_SYSTEM_PROMPT`, `WRITER_SYSTEM_PROMPT`), each with their own tools |
-| Subtasks executed by the *same* kind of agent | Subtasks routed to genuinely *different* specialist agents |
-| `run_tool_calling_loop()` used once | The same generic loop function reused for 3 different agents (researcher, writer, orchestrator) |
+| Loosely-formatted `print()` statements | Structured event dicts via the `Tracer` class |
+| Nothing persisted | `tracer.save()` writes a full JSON trace to disk |
+| No way to review a past run | `print_trace_summary()` — a readable timeline from a saved trace file |
+| LLM calls and tool calls not distinguished in logs | Each traced as a separate `event_type` ("llm_call" vs "tool_call") |
 
-## Why this is elegant
+## Why separate LLM-call and tool-call events
 
-From the orchestrator's point of view, delegating to a sub-agent looks
-**exactly like calling a tool in Module 3** — it has no idea
-`delegate_to_researcher` secretly runs a whole multi-turn agent loop
-underneath. All the multi-agent complexity is hidden behind an ordinary
-function call, so no new "multi-agent-specific" code is needed in the
-orchestrator's loop at all.
+Keeping them as distinct trace events lets you later ask precise
+questions like "was the slowness in this run caused by the LLM or by a
+slow tool?" — something loose print statements can't answer after the
+fact.
 
 ## Key takeaway
 
-> A "multi-agent system" is often just: one agent, whose tools happen to
-> be other complete agents. The generic tool-calling loop we built in
-> Module 3 already supports this — you don't need a different mechanism,
-> just a different kind of "tool."
+> A trace is a debugging artifact you can revisit **after** a run ends —
+> e.g. after a user reports "the agent gave a weird answer" and you need
+> to reconstruct exactly what happened, in what order, and how long each
+> step took.
 
 ## Run it
 
 From the project root:
 
 ```bash
-python module10/module10_multi_agent.py
+python module10/module10_observability.py
 ```
 
-Watch the indented `[RESEARCHER | turn N]` and `[WRITER | turn N]` log
-lines nested inside the `[ORCHESTRATOR]` run — this nesting is the
-multi-agent hierarchy made visible.
+This produces `agent_trace.json` in the `module10` directory, then
+immediately loads and prints it via `print_trace_summary()`.
 
 ## Things to try
 
-- Add a third specialist (e.g. a "fact-checker" agent) and wire it in as
-  another `delegate_to_...` tool for the orchestrator.
-- Give the researcher and writer agents different models (e.g. a cheaper
-  model for research, a stronger one for writing) — since each sub-agent
-  loop is independent, this requires no structural changes.
-- Combine this with Module 9's tracing: wrap each sub-agent's
-  `run_tool_calling_loop()` call in its own `Tracer` to get separate,
-  attributable traces per specialist.
+- Open the generated `agent_trace.json` directly and look at its
+  structure — try writing a one-line filter like
+  `[e for e in trace if e["type"] == "tool_call" and e["duration_ms"] > 500]`.
+- Deliberately trigger a tool error and see `is_error: true` appear in
+  that event, with an `[ERR]` marker in the printed summary.
+- Run the script twice with different tasks and compare the two saved
+  trace files side by side.

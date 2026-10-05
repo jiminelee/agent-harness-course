@@ -1,11 +1,11 @@
 """
-Module 7: Parallel Execution & Performance
+Module 8: Parallel Execution & Performance
 =============================================
 Goal: Every module so far executed tool calls and subtasks SEQUENTIALLY,
 one at a time, even when they had no dependency on each other. That wastes
 time (and sometimes money, if you're paying per-request overhead) when
 calls are independent -- e.g. the model asking for 3 web searches at once,
-or Module 5's independent subtasks.
+or Module 6's independent subtasks.
 
 New concepts:
   1. ASYNC EXECUTION: use Python's asyncio + the async OpenAI client to run
@@ -109,7 +109,7 @@ async def search_web(query: str) -> str:
 
 async def execute_tool_call(tool_call) -> str:
     """
-    Same error handling as Module 3/6, but async, and wrapped with the
+    Same error handling as Module 3/7, but async, and wrapped with the
     rate limiter semaphore so we never exceed MAX_CONCURRENT_CALLS
     simultaneous tool executions -- even if the model requests many more
     than that at once.

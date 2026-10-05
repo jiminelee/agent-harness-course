@@ -50,5 +50,5 @@ python module00/module00_baseline.py
   (e.g. multiplying two large numbers) — notice the model rarely admits
   uncertainty on its own.
 - Try asking a multi-part question in one message and see how the model
-  handles it without any decomposition help (compare to Module 5's
+  handles it without any decomposition help (compare to Module 6's
   planning approach later).

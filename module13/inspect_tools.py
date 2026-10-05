@@ -1,6 +1,6 @@
 """Discover and call MCP tools without an LLM.
 
-Run: python module12/inspect_tools.py
+Run: python module13/inspect_tools.py
 The agent example reuses these small connection/discovery helpers.
 """
 

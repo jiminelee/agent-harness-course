@@ -5,9 +5,9 @@ This is what USING the packaged core looks like from a brand new project's
 point of view -- contrast this with Module 1's standalone loop. The basic
 loop, tools, error handling, cost tracking, caching, and prompt registry
 are available behind a small interface. Advanced features from Modules
-4-10 remain separate examples that can be composed on top of this core.
+4-11 remain separate examples that can be composed on top of this core.
 
-Run this file from the project root with `python module11/example_usage.py`.
+Run this file from the project root with `python module12/example_usage.py`.
 The `agent_harness/` package lives next to this script.
 """
 
@@ -28,7 +28,7 @@ def celsius_to_fahrenheit(celsius: float) -> str:
 
 
 if __name__ == "__main__":
-    # Pull a VERSIONED system prompt from the registry (Module 11's prompt
+    # Pull a VERSIONED system prompt from the registry (Module 12's prompt
     # versioning) instead of hardcoding a string -- this line alone tells
     # you exactly which prompt text produced this run, for later debugging.
     system_prompt, prompt_version = default_registry.get("general_assistant")
@@ -49,6 +49,6 @@ if __name__ == "__main__":
     print(answer)
     print(f"{'#' * 60}")
 
-    # This is the payoff of Module 11: one line gives you full visibility
+    # This is the payoff of Module 12: one line gives you full visibility
     # into cost and cache efficiency for this run.
     print(f"\n[STATS] {agent.stats()}")

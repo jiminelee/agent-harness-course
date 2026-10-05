@@ -22,10 +22,13 @@ htmlcov/
 !.env.example
 
 # Generated course artifacts
-module08/scratch_demo_file.txt
-module09/agent_trace.json
+module09/scratch_demo_file.txt
+module10/agent_trace.json
 
 # Editor and operating-system files
 .DS_Store
 .idea/
 .vscode/
+
+# Persistent project knowledge created by Module 5
+module05/memory.json

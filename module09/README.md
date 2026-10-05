@@ -1,56 +1,67 @@
-# Module 9: Observability & Debugging
+# Module 9: Guardrails & Safety
 
-**File:** `module09_observability.py`
-**Builds on:** Module 3's tool registry pattern
+**File:** `module09_guardrails.py`
+**Builds on:** Module 7's error-handling patterns
 
 ## Concept
 
-When something goes wrong deep inside a multi-turn, multi-tool agent run,
-"read the print statements" doesn't scale. This module introduces
-**structured tracing**: every meaningful step (an LLM call, a tool call)
-becomes a well-defined event — `{step, type, input, output, duration_ms,
-timestamp}` — saved to disk as JSON, plus a small viewer to read it back.
+Until now, any tool the model requested was executed immediately and
+automatically. That's fine for read-only tools (`calculate`,
+`search_web`), but dangerous for tools that **modify** something (delete a
+file, send an email, spend money). This module adds three concrete safety
+layers:
 
-## What's new since Module 3
+1. **Human-in-the-loop confirmation** — tools marked `dangerous=True`
+   pause the loop and require an explicit human "yes" (via terminal input)
+   before running. The model cannot bypass this.
+2. **Input validation** — arguments are validated strictly *before*
+   confirmation or execution (rejecting suspicious paths, oversized
+   inputs, etc.) — never trust model-generated arguments blindly.
+3. **Audit logging** — every dangerous-action attempt (approved, denied,
+   or rejected by validation) is recorded with a timestamp, regardless of
+   the outcome.
 
-| Module 3 | Module 9 |
+## What's new since Module 7
+
+| Module 7 | Module 9 |
 |---|---|
-| Loosely-formatted `print()` statements | Structured event dicts via the `Tracer` class |
-| Nothing persisted | `tracer.save()` writes a full JSON trace to disk |
-| No way to review a past run | `print_trace_summary()` — a readable timeline from a saved trace file |
-| LLM calls and tool calls not distinguished in logs | Each traced as a separate `event_type` ("llm_call" vs "tool_call") |
+| No distinction between tool risk levels | `dangerous=True` flag on the `@tool` decorator |
+| No human approval step | `request_human_confirmation()` — blocks on real terminal input |
+| No input sanitization | `validate_tool_args()` — checked before confirmation/execution |
+| No persistent record of sensitive actions | `AUDIT_LOG` + `audit()` — every attempt recorded |
 
-## Why separate LLM-call and tool-call events
+## The new tool: `delete_file`
 
-Keeping them as distinct trace events lets you later ask precise
-questions like "was the slowness in this run caused by the LLM or by a
-slow tool?" — something loose print statements can't answer after the
-fact.
+Marked `dangerous=True`, this tool demonstrates the full gate: validation
+first (rejecting path traversal / absolute paths), then human confirmation
+second, then execution only if both pass.
 
 ## Key takeaway
 
-> A trace is a debugging artifact you can revisit **after** a run ends —
-> e.g. after a user reports "the agent gave a weird answer" and you need
-> to reconstruct exactly what happened, in what order, and how long each
-> step took.
+> Guardrails live in the **harness**, not in the prompt. The model doesn't
+> need to know a tool is "dangerous" — the code enforces the gate
+> regardless of what the model says or how convincingly it argues for
+> running the action.
 
 ## Run it
 
 From the project root:
 
 ```bash
-python module09/module09_observability.py
+python module09/module09_guardrails.py
 ```
 
-This produces `agent_trace.json` in the `module09` directory, then
-immediately loads and prints it via `print_trace_summary()`.
+This script actually pauses for real `y/N` terminal input when the model
+requests `delete_file` — run it interactively to see the full flow,
+including what happens when you type `n`.
 
 ## Things to try
 
-- Open the generated `agent_trace.json` directly and look at its
-  structure — try writing a one-line filter like
-  `[e for e in trace if e["type"] == "tool_call" and e["duration_ms"] > 500]`.
-- Deliberately trigger a tool error and see `is_error: true` appear in
-  that event, with an `[ERR]` marker in the printed summary.
-- Run the script twice with different tasks and compare the two saved
-  trace files side by side.
+- Type `n` at the confirmation prompt and observe the `DENIED` message
+  flow back to the model, and how it responds to being refused.
+- Add a second dangerous tool of your own (e.g. `send_email`) and confirm
+  it automatically gets the confirmation gate just by setting
+  `dangerous=True`.
+- Print `AUDIT_LOG` at the end of a run where you deny an action, and
+  confirm the denial is recorded even though nothing was actually
+  executed.

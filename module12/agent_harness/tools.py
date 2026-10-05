@@ -20,8 +20,8 @@ DANGEROUS_TOOLS = set()  # names marked as dangerous; policy is layered separate
 def tool(description: str, parameters: dict, required: list, dangerous: bool = False):
     """
     Decorator that registers a function as an agent tool, exactly like
-    Module 3/8. `dangerous=True` preserves the safety metadata introduced
-    in Module 8, but this minimal Module 11 Agent does not enforce a human-
+    Module 3/9. `dangerous=True` preserves the safety metadata introduced
+    in Module 9, but this minimal Module 12 Agent does not enforce a human-
     confirmation gate. A real application can use DANGEROUS_TOOLS when it
     layers that policy on top of the core loop.
     """
@@ -65,7 +65,7 @@ def execute_tool_call(tool_name: str, arguments_json: str,
                       registry: dict = None) -> str:
     """
     Shared execution helper with the error handling established in
-    Module 3/6: unknown tools, bad JSON, and tool exceptions all become
+    Module 3/7: unknown tools, bad JSON, and tool exceptions all become
     an "ERROR: ..." string instead of raising, so the agent loop never
     crashes because of a tool.
     """

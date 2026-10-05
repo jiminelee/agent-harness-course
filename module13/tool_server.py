@@ -1,4 +1,4 @@
-"""Module 12's tool provider. No model or agent loop lives in this process.
+"""Module 13's tool provider. No model or agent loop lives in this process.
 
 The client starts this file automatically. stdout belongs to MCP; send any
 debug prints to stderr (print(..., file=sys.stderr)).

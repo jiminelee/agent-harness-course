@@ -1,69 +1,63 @@
-# Module 7: Parallel Execution & Performance
+# Module 7: Error Recovery & Self-Correction
 
-**File:** `module07_parallel_execution.py`
+**File:** `module07_error_recovery.py`
 **Builds on:** Module 3's tool registry pattern
 
 ## Concept
 
-Every module so far executed tool calls **sequentially**, one at a time,
-even when they had no dependency on each other. This wastes time when
-calls are genuinely independent (e.g. the model requesting 3 unrelated web
-searches in one turn). This module introduces:
+Previously, tool errors were just fed back to the model with no limit —
+a confused model could retry the same failing call over and over (up to
+`MAX_TURNS`). This module adds two real quality/safety mechanisms:
 
-1. **Async execution** — using `asyncio` + `AsyncOpenAI` to run
-   independent tool calls concurrently instead of in a `for` loop.
-2. **Rate limiting** — an `asyncio.Semaphore` caps how many calls can be
-   in flight at once, so you get the speed benefit without exceeding your
-   provider's rate limits.
-3. **Cost/latency tradeoff** — parallel calls finish faster but spike
-   usage all at once; sequential calls are slower but smoother. Timing is
-   printed so you can see the difference directly.
-
-If you are not yet familiar with Python's `asyncio`, refer to
-[Python's asyncio: A Hands-On Walkthrough](https://realpython.com/async-io-python/)
-before or while working through this module.
+1. **Retry limiting** — track how many times each tool has failed
+   **consecutively**. After a small limit, short-circuit further attempts
+   at that tool instead of calling it again.
+2. **Reflection (self-correction)** — once the model produces what it
+   thinks is a final answer, a **separate critic LLM call** checks it
+   against the original task. If the critic finds a problem, the
+   critique is fed back as a revision request, for a bounded number of
+   rounds.
 
 ## What's new since Module 3
 
 | Module 3 | Module 7 |
 |---|---|
-| `OpenAI` (sync client) | `AsyncOpenAI` (async client) |
-| `for tool_call in message.tool_calls:` (sequential) | `asyncio.gather(*[execute_tool_call(tc) for tc in message.tool_calls])` (concurrent) |
-| No concurrency cap | `asyncio.Semaphore(MAX_CONCURRENT_CALLS)` |
-| No timing instrumentation | Wall-clock timing printed per batch of tool calls |
+| Errors fed back with no tracking | `FailureTracker` counts consecutive failures per tool |
+| No verification of the final answer | `critique_answer()` — an independent LLM call judges pass/fail |
+| Loop stops as soon as no tool call is requested | Loop only truly stops after the critic passes it (or rounds run out) |
 
-## Why `search_web` has a fake delay
+## Why the critic is a *separate* call
 
-`search_web` in this module calls `await asyncio.sleep(1.5)` before
-returning its stub result, simulating a slow network call. This is what
-lets you actually *observe* the benefit of concurrency — with 3 searches
-requested at once, sequential execution would take ~4.5s, while concurrent
-execution (bounded by the semaphore) finishes in roughly the time of the
-single slowest call.
+If the same model, in the same context, critiques its own just-generated
+answer, it tends to just agree with itself. `critique_answer()` uses a
+fresh, isolated call with only the task and the proposed answer — no
+memory of *how* the answer was produced — to get an honest second look.
 
 ## Key takeaway
 
-> Concurrency is a free win only for genuinely independent work. It also
-> isn't free of risk — that's what the semaphore is for: capping how much
-> you do at once so you don't overwhelm a rate-limited API.
+> Real agents fail in two different places: at the **tool level** (an
+> action didn't work) and at the **answer level** (all actions "worked"
+> but the final synthesis is wrong or incomplete). This module handles
+> both, with two different mechanisms.
 
 ## Run it
 
 From the project root:
 
 ```bash
-python module07/module07_parallel_execution.py
+python module07/module07_error_recovery.py
 ```
 
-Compare the printed "finished in Xs" line against the "sequential would
-have taken roughly Ys" estimate in the same log line.
+The example task uses an intentionally malformed expression (`'5 +'`) so
+you can watch the calculator tool fail, retry, fail again, and then get
+short-circuited by `FailureTracker` before a third attempt.
 
 ## Things to try
 
-- Lower `MAX_CONCURRENT_CALLS` to 1 and confirm the timing degrades back
-  toward sequential-speed, even though the code still uses
-  `asyncio.gather`.
-- Increase the simulated delay in `search_web` and watch the speed-up
-  become more dramatic with more independent calls.
-- Apply the same `asyncio.gather` pattern to Module 5's independent
-  subtasks — a natural extension combining planning with parallelism.
+- Lower `MAX_CONSECUTIVE_TOOL_FAILURES` to 1 and watch the short-circuit
+  trigger immediately after one failure.
+- Feed in a task with a subtly wrong or incomplete answer and watch the
+  `[REFLECT]` critique catch it and trigger a revision round.
+- Set `MAX_REFLECTION_ROUNDS` to 0 and confirm the agent returns its first
+  answer without any self-checking — useful for comparing behavior with
+  and without reflection.

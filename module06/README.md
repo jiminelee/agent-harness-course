@@ -1,63 +1,62 @@
-# Module 6: Error Recovery & Self-Correction
+# Module 6: Planning & Task Decomposition
 
-**File:** `module06_error_recovery.py`
-**Builds on:** Module 3's tool registry pattern
+**File:** `module06_planning.py`
+**Builds on:** Module 4 (uses the same tool registry pattern from Module 3)
 
 ## Concept
 
-Previously, tool errors were just fed back to the model with no limit —
-a confused model could retry the same failing call over and over (up to
-`MAX_TURNS`). This module adds two real quality/safety mechanisms:
+So far, the agent has handled tasks reactively, turn by turn, with no
+explicit "here's my overall plan" step. For complex, multi-part tasks this
+can wander or lose the big picture. This module introduces the
+**plan-then-execute** pattern:
 
-1. **Retry limiting** — track how many times each tool has failed
-   **consecutively**. After a small limit, short-circuit further attempts
-   at that tool instead of calling it again.
-2. **Reflection (self-correction)** — once the model produces what it
-   thinks is a final answer, a **separate critic LLM call** checks it
-   against the original task. If the critic finds a problem, the
-   critique is fed back as a revision request, for a bounded number of
-   rounds.
+1. **Plan** — ask the LLM to decompose the task into an ordered list of
+   concrete subtasks, returned as structured JSON.
+2. **Execute** — run each subtask through its own small tool-calling loop,
+   one at a time, collecting results.
+3. **Synthesize** — combine all subtask results into one coherent final
+   answer.
 
-## What's new since Module 3
+## What's new since Module 4
 
-| Module 3 | Module 6 |
+| Module 4 | Module 6 |
 |---|---|
-| Errors fed back with no tracking | `FailureTracker` counts consecutive failures per tool |
-| No verification of the final answer | `critique_answer()` — an independent LLM call judges pass/fail |
-| Loop stops as soon as no tool call is requested | Loop only truly stops after the critic passes it (or rounds run out) |
+| One long-running conversation, compressed over time | Each subtask gets its own short, independent conversation |
+| Memory managed by **compression** | Memory managed by **isolation** — subtasks don't share context at all |
+| Reactive, turn-by-turn behavior | An explicit up-front plan drives execution |
 
-## Why the critic is a *separate* call
+## Structured output for planning
 
-If the same model, in the same context, critiques its own just-generated
-answer, it tends to just agree with itself. `critique_answer()` uses a
-fresh, isolated call with only the task and the proposed answer — no
-memory of *how* the answer was produced — to get an honest second look.
+`generate_plan()` asks the model to respond with **only a JSON array of
+strings** — no prose, no markdown. This is more reliable to parse than
+free text, though the code still defensively handles models that wrap the
+JSON in code fences, and falls back to a single-subtask plan if parsing
+fails entirely (a broken plan should never crash the whole task).
 
 ## Key takeaway
 
-> Real agents fail in two different places: at the **tool level** (an
-> action didn't work) and at the **answer level** (all actions "worked"
-> but the final synthesis is wrong or incomplete). This module handles
-> both, with two different mechanisms.
+> "Isolation" and "compression" (Module 4) are two different answers to
+> the same problem: keeping context manageable. Isolation works well when
+> subtasks are genuinely independent; compression works better when one
+> continuous thread of reasoning needs to span many turns.
 
 ## Run it
 
 From the project root:
 
 ```bash
-python module06/module06_error_recovery.py
+python module06/module06_planning.py
 ```
 
-The example task uses an intentionally malformed expression (`'5 +'`) so
-you can watch the calculator tool fail, retry, fail again, and then get
-short-circuited by `FailureTracker` before a third attempt.
+Watch the `[PLAN]`, `[EXECUTE N]`, and `[SYNTHESIZE]` log sections — they
+correspond directly to the three-step pattern above.
 
 ## Things to try
 
-- Lower `MAX_CONSECUTIVE_TOOL_FAILURES` to 1 and watch the short-circuit
-  trigger immediately after one failure.
-- Feed in a task with a subtly wrong or incomplete answer and watch the
-  `[REFLECT]` critique catch it and trigger a revision round.
-- Set `MAX_REFLECTION_ROUNDS` to 0 and confirm the agent returns its first
-  answer without any self-checking — useful for comparing behavior with
-  and without reflection.
+- Print the raw plan JSON before parsing to see exactly what the model
+  produced.
+- Feed in a single-step task and observe the plan collapses to one
+  subtask — the pattern still works, just with less to do.
+- Force a JSON parse failure (e.g. by tweaking the planning prompt to
+  encourage prose) and confirm the fallback to a single-subtask plan kicks
+  in instead of crashing.

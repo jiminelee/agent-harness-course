@@ -61,12 +61,12 @@ python -m pip install openai
 Run the module commands below while the virtual environment is activated.
 When finished, leave it with `deactivate`.
 
-Module 12 additionally uses the official MCP Python SDK's `MCPServer` and
+Module 13 additionally uses the official MCP Python SDK's `MCPServer` and
 `Client` APIs. It requires Python 3.10+; install its verified dependencies
 before running that module:
 
 ```bash
-python -m pip install -r module12/requirements.txt
+python -m pip install -r module13/requirements.txt
 ```
 
 If using Ollama locally:
@@ -93,8 +93,8 @@ Each implementation module has a standalone entry point:
 python module00/module00_baseline.py
 python module01/module01_agent_loop.py
 # ...etc
-python module12/inspect_tools.py       # MCP only; no model needed
-python module12/module12_mcp_tools.py   # agent using MCP tools
+python module13/inspect_tools.py       # MCP only; no model needed
+python module13/module13_mcp_tools.py   # agent using MCP tools
 ```
 
 ## Module Index
@@ -105,28 +105,30 @@ python module12/module12_mcp_tools.py   # agent using MCP tools
 | [1](module01/README.md) | Minimal Agent Loop | Multi-turn loop + conversation history |
 | [2](module02/README.md) | Your First Tool | Real tool/function calling (a calculator) |
 | [3](module03/README.md) | Tool Registry & Multiple Tools | Decorator-based registry, robust error handling |
-| [4](module04/README.md) | State & Memory Management | History compression via LLM-generated summaries |
-| [5](module05/README.md) | Planning & Task Decomposition | Plan → Execute → Synthesize pattern |
-| [6](module06/README.md) | Error Recovery & Self-Correction | Retry limits + reflection/critique loop |
-| [7](module07/README.md) | Parallel Execution & Performance | Async tool calls, rate limiting |
-| [8](module08/README.md) | Guardrails & Safety | Human-in-the-loop confirmation, input validation, audit log |
-| [9](module09/README.md) | Observability & Debugging | Structured tracing, saved JSON traces, trace viewer |
-| [10](module10/README.md) | Multi-Agent & Orchestration | Sub-agents-as-tools pattern (researcher + writer) |
-| [11](module11/README.md) | Practical Deployment | Packaged reusable library: cost tracking, caching, prompt versioning |
-| [12](module12/README.md) | MCP: External Tools | MCPServer + Client, discovery and execution through a local tool server |
-| [13](module13/README.md) | Production Roadmap | What to study and harden after completing the course |
+| [4](module04/README.md) | Context Management | Summarize older execution steps while preserving the original task |
+| [5](module05/README.md) | Persistent Memory | JSON knowledge storage, retrieval, updates, and deletion across runs |
+| [6](module06/README.md) | Planning & Task Decomposition | Plan → Execute → Synthesize pattern |
+| [7](module07/README.md) | Error Recovery & Self-Correction | Retry limits + reflection/critique loop |
+| [8](module08/README.md) | Parallel Execution & Performance | Async tool calls, rate limiting |
+| [9](module09/README.md) | Guardrails & Safety | Human-in-the-loop confirmation, input validation, audit log |
+| [10](module10/README.md) | Observability & Debugging | Structured tracing, saved JSON traces, trace viewer |
+| [11](module11/README.md) | Multi-Agent & Orchestration | Sub-agents-as-tools pattern (researcher + writer) |
+| [12](module12/README.md) | Practical Deployment | Packaged reusable library: cost tracking, caching, prompt versioning |
+| [13](module13/README.md) | MCP: External Tools | MCPServer + Client, discovery and execution through a local tool server |
+| [14](module14/README.md) | Production Roadmap | What to study and harden after completing the course |
 
 ## Files in this project
 
 ```
-module00/                     # Modules 0-10 each contain a script and README
+module00/                     # Modules 0-11 each contain a script and README
   README.md
   module00_baseline.py
 module01/
   README.md
   module01_agent_loop.py
-# ... module02/ through module10/ follow the same pattern
-module11/
+# ... module02/ through module11/ follow the same pattern
+# Module 5 creates memory.json to persist project knowledge
+module12/
   README.md
   example_usage.py
   agent_harness/              # packaged reusable library
@@ -137,14 +139,13 @@ module11/
     cost.py
     cache.py
     loop.py
-module12/
+module13/
   README.md
   requirements.txt           # verified MCP + model SDK versions
   tool_server.py             # independent MCP tool provider
   inspect_tools.py           # discover/call tools without an LLM
-  module12_mcp_tools.py       # agent loop using MCP tools
-  test_mcp_tools.py           # model-free integration tests
-module13/
+  module13_mcp_tools.py       # agent loop using MCP tools
+module14/
   README.md                   # roadmap from educational code to production
 README.md                     # this file
 ```
@@ -160,17 +161,21 @@ README.md                     # this file
 3. Try the "Things to try" section at the end of each module README —
    small modifications that deepen your understanding.
 4. Move to the next module once you're comfortable with the current one's
-   code. Modules 4-10 are focused variations on the core loop rather than
+   code. Modules 4-11 are focused variations on the core loop rather than
    a cumulative implementation of every earlier feature.
 
-By Module 11, you'll have a small reusable core library
-(`module11/agent_harness/`) that a new project could `import` directly
-instead of copy-pasting a script. Modules 4-10 remain focused examples of
+Modules 4 and 5 distinguish in-session context compression from persistent
+knowledge: first summarize completed execution steps, then save selected
+facts across runs in JSON.
+
+By Module 12, you'll have a small reusable core library
+(`module12/agent_harness/`) that a new project could `import` directly
+instead of copy-pasting a script. Modules 4-11 remain focused examples of
 advanced features you can compose around that core.
 
-Module 12 then uses the familiar loop to discover and call tools in a
+Module 13 then uses the familiar loop to discover and call tools in a
 separate MCP server. Start with its model-free inspection script before
-running the agent. Finish with Module 13's production roadmap.
+running the agent. Finish with Module 14's production roadmap.
 
 ## Caveat: Educational Use Only
 

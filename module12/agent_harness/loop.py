@@ -3,7 +3,7 @@ loop.py
 =======
 The core `Agent` class -- this is the packaged, reusable version of the
 tool-calling loop and registry from Modules 1-3, now wired together with
-Module 11's cost tracking and caching concerns.
+Module 12's cost tracking and caching concerns.
 
 This intentionally keeps a SUBSET of the full course's features. Memory
 compression, planning, reflection/retries, confirmation gates, tracing,
@@ -21,7 +21,7 @@ class Agent:
     """
     A reusable agent with its own system prompt, tool subset, cost tracker,
     and cache. Multiple Agent instances can coexist in the same process
-    (e.g. a "researcher" Agent and a "writer" Agent, echoing Module 10),
+    (e.g. a "researcher" Agent and a "writer" Agent, echoing Module 11),
     each with independent cost/cache accounting.
     """
 

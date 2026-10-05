@@ -1,223 +1,115 @@
-# Module 12: MCP — Discovering and Calling External Tools
+# Module 12: Practical Deployment — Packaging a Reusable Library
 
-**Files:** `tool_server.py`, `inspect_tools.py`, `module12_mcp_tools.py`
-**Builds on:** Module 3's registry and loop; Module 7's `async` / `await`
+**Files:** `agent_harness/` (package) + `example_usage.py`
+**Builds on:** The core loop and tool registry from Modules 1-3
 
 ## Concept
 
-In Module 3, the harness owns a dictionary mapping tool names to Python
-functions. What if a separate program provides the tools, or several
-applications should use the same implementation?
+Every module so far was a standalone script. This module packages
+the core tool-calling loop, tool registry, and tool-error handling into a
+small, **reusable library**. It also introduces three concerns that become
+important when the same core is reused by multiple applications:
 
-**Model Context Protocol (MCP)** defines how an application discovers and
-calls tools supplied by another program. This module moves two arithmetic
-functions into a local MCP server, then connects our own harness to it.
+1. **Cost monitoring** — when an API response includes token usage,
+   `CostTracker` accumulates it into an estimated running dollar cost. It
+   still counts calls from providers that omit usage metadata.
+2. **Caching** — identical requests (same model + messages + tools) are
+   served from an in-memory cache instead of paying for/waiting on a
+   duplicate LLM call.
+3. **Prompt versioning** — system prompts are registered with explicit
+   version tags, so an application can record exactly which prompt version
+   produced a run.
 
-MCP does **not** replace the model's tool calling or the agent loop. The
-model still requests a named tool with arguments; our code executes that
-request and sends the result back. MCP changes how the harness learns
-which tools exist and reaches their implementations.
+This package intentionally contains a **minimal core**, not every feature
+from the course. Context compression, persistent memory, planning, reflection/retries, human
+confirmation, tracing, and multi-agent orchestration remain in Modules
+4-11 as patterns you can compose around this Agent. Keeping that boundary
+visible is part of the packaging lesson: a reusable core does not need to
+absorb every policy and workflow.
 
-## Three names to learn
+## Package layout
 
-| Term | In this module |
+```
+agent_harness/
+  __init__.py    # public API: Agent, tool, get_client, etc.
+  config.py      # BASE_URL / API_KEY / MODEL in ONE place (Ollama <-> OpenAI switch point)
+  tools.py       # the @tool decorator + registry (Module 3's pattern, packaged)
+  prompts.py     # PromptRegistry — versioned system prompts
+  cost.py        # CostTracker — token usage -> estimated cost
+  cache.py       # SimpleCache — hash-keyed response cache
+  loop.py        # the Agent class — the core loop, with caching + cost wired in
+example_usage.py # a new project's-eye view of using the packaged core
+```
+
+## What's new in the packaging step
+
+| Before | Module 12 |
 |---|---|
-| Host | Our application managing the model, history, and loop |
-| Client | The SDK `Client` inside the host, talking to the server |
-| Server | `tool_server.py`, a separate program exposing `add` and `multiply` |
+| Config constants copy-pasted at the top of every script | `config.py` — one place to switch providers for the whole project |
+| Tool registry re-declared per script | `tools.py` — shared, importable registry |
+| String constants for system prompts | `prompts.py` — `PromptRegistry` with explicit versions |
+| No cost visibility | `cost.py` — `CostTracker`, summarized via `agent.stats()` |
+| No caching | `cache.py` — `SimpleCache`, hit/miss rate reported via `agent.stats()` |
+| A single `run_agent_loop()` function per script | `Agent` class — instantiable, multiple independent agents can coexist |
 
-A server does not necessarily mean a remote computer. Here the client
-starts a child process on your machine. They exchange protocol messages
-over **stdio** (standard input/output), so you need no port or second
-terminal for MCP. Ollama, if used, is a separate model service.
+## Using it
 
-The tool server has no LLM and does not choose actions. The host makes
-model requests and routes the requested actions to the server.
+```python
+from agent_harness import Agent, tool
 
-## What's new since Module 3
+@tool(description="...", parameters={...}, required=[...])
+def my_tool(...):
+    ...
 
-| Module 3 | Module 12 |
-|---|---|
-| Local `@tool` decorator | SDK `@mcp.tool()` on the server |
-| Locally assembled `TOOLS_SCHEMA` | `list_tools()` definitions, adapted for the model |
-| `TOOL_REGISTRY[name](**args)` | `await client.call_tool(name, args)` |
-| Python function result | MCP content, optional structured data, and error status |
-| One process | Host and tool-server processes |
-| Messages and bounded loop | Same responsibilities, now with async requests |
+agent = Agent(system_prompt="You are a helpful assistant.")
+answer = agent.run("do something")
+print(agent.stats())   # cost + cache summary
+```
 
-Registration still exists on the server. The host no longer imports tool
-implementations or keeps a name-to-function registry. Its set of discovered
-names is only an allowlist, not executable code.
+Compare this to Module 1's ~100 lines just to get a basic loop running —
+this is the payoff of building everything incrementally: the core library
+is small and clean specifically because every piece in it was
+already understood, module by module.
 
-## Setup
+## Key takeaway
 
-Use **Python 3.10+** and activate the project virtual environment described
-in the [root README](../README.md). From the project root:
+> Packaging isn't just "moving code into files" — it's making the
+> non-functional concerns (cost, caching, prompt versioning) first-class
+> parts of the interface, so every future project using this library gets
+> them automatically instead of everyone re-inventing them per script.
+
+## Run it
+
+From the project root:
 
 ```bash
-python -m pip install -r module12/requirements.txt
+python module12/example_usage.py
 ```
-
-This module pins the direct dependencies to `mcp==2.2.0` and
-`openai==3.19.2`, verified together. It uses the official SDK's **MCPServer**
-(`from mcp.server import MCPServer`) and **Client** (`from mcp import Client`)
-APIs. Older v1/FastMCP examples have different APIs; do not mix them into
-this example. Transitive dependencies are resolved by pip, not locked here.
-
-## Step 1: use MCP without a model
-
-```bash
-python module12/inspect_tools.py
-```
-
-This starts the server, prints each tool's name, description, and input
-JSON Schema, then calls `multiply` with `a=6`, `b=7`. No model server or API
-key is needed. Look for output like this (schemas omitted here):
-
-```text
-[DISCOVER] add: Add two numbers and return their sum.
-[DISCOVER] multiply: Multiply two numbers and return their product.
-[CALL] multiply(6, 7)
-42.0
-Structured result: {"result": 42.0}
-[MCP] Connection closed; server process cleaned up.
-```
-
-The SDK derives input schemas from type hints. The numeric return is
-represented as readable content and structured output; inspection shows
-both. Do not separately start `tool_server.py`: the client starts it using
-the active Python interpreter and an absolute path, and closes it afterward.
-
-## Step 2: connect the agent loop
-
-Start the course's model service as described in the root README, then run:
-
-```bash
-python module12/module12_mcp_tools.py
-```
-
-The task is “Multiply 6 by 7, then add 10 to that result.” The expected
-arithmetic result is **52**. Check `[MCP CALL]` and `[MCP RESULT]` logs:
-a correct final number alone does not demonstrate MCP use.
-
-```text
-Host starts server -> discovers tools -> converts schemas for model
-    |
-LLM requests multiply(a=6, b=7)
-    |
-Host calls MCP server -> result 42 -> tool message back to LLM
-    |
-LLM requests add(a=42, b=10)
-    |
-Host calls MCP server -> result 52 -> tool message back to LLM
-    |
-LLM returns final answer -> host closes connection
-```
-
-Exact responses and call counts vary. As in Module 3, no tool calls means
-the loop stops; it is not proof of answer correctness.
-
-Provider settings are at the top of `module12_mcp_tools.py`: `BASE_URL`,
-`API_KEY`, and `MODEL`. Defaults match the earlier Ollama examples. The
-`reasoning_effort` option is sent only with the dummy `ollama` key.
-Configuration is not loaded from `.env`.
-
-## Read the code in this order
-
-1. **`tool_server.py`:** two ordinary functions registered on `MCPServer`.
-2. **`inspect_tools.py`:** connection lifecycle, paginated discovery, and
-   conversion from MCP results to text.
-3. **`to_model_tool_schema()` in the agent:** copy the name, description,
-   and input schema into the model API format.
-4. **`execute_mcp_tool_call()`:** parse arguments, call the server, format
-   the result. Compare it with Module 3's local dispatch.
-5. **`run_agent_loop()`:** append the assistant request before its results,
-   preserve each `tool_call_id`, and repeat within a turn limit.
-
-`await` suspends a function while a request completes. `async with` owns a
-connection's lifetime, including cleanup on exceptions. Tool calls are
-sequential here; this module does not repeat Module 7's parallelism lesson.
-
-## Results, errors, and lifecycle
-
-- **Model argument errors:** unknown names, malformed JSON, and non-object
-  arguments become `ERROR:` messages without contacting the server. The
-  server validates the actual function inputs.
-- **Tool errors:** MCP's `is_error` flag becomes an `ERROR:` message that
-  the model can use to correct its next attempt.
-- **Request failures:** timeouts, protocol exceptions, and broken connections
-  abort the run rather than repeatedly asking the model to retry a dead
-  server. These differ from successful requests returning tool errors.
-- **Results:** all text blocks and structured data are preserved. Other
-  content types are explicitly marked unsupported by this text-only adapter.
-- **Limits:** MCP requests have a 10-second read timeout. An outer
-  300-second deadline includes startup and the whole session. Model calls
-  have a 60-second timeout with automatic retries disabled. `MAX_TURNS=8`
-  also bounds the loop.
-- **Cleanup:** context managers close clients and let the SDK clean up the
-  child process, including during failure or keyboard interruption.
-
-Server stdout belongs to MCP protocol traffic. Send server debug prints to
-stderr with `print(..., file=sys.stderr)`. Host-side prints are fine.
-
-## Tests (no LLM needed)
-
-```bash
-python -m unittest discover -s module12 -v
-```
-
-Tests start real stdio servers and verify discovery, calculations, input
-validation, result conversion, and failure handling. A scripted model
-checks that two real MCP results return to the correct tool-call IDs.
-A temporary extended server demonstrates new-tool discovery and timeout
-cleanup. Temporary fixtures are removed. Deliberate failure tests may print
-server errors to stderr; the unittest summary indicates success or failure.
-These tests do not measure whether a real model chooses the right tool.
-
-## Troubleshooting
-
-| Symptom | Check |
-|---|---|
-| Cannot import `MCPServer` or `Client` | Install this module's pinned requirements in the active environment |
-| Manually launched server looks idle | Run `inspect_tools.py`; stdio servers wait for protocol input |
-| Protocol parsing errors | Remove server-side stdout debug prints |
-| Inspection works, agent fails | Check model service, model name, and tool-calling support |
-| Answer is 52, but no MCP logs | Model answered directly; inspect prompt and model behavior |
-| Request/session timeout | Check startup, tool duration, and constants in `inspect_tools.py` |
 
 ## Things to try
 
-- Add `subtract(a: float, b: float) -> float` with `@mcp.tool()` **above**
-  the server's `if __name__ == "__main__"` block. Restart inspection and
-  confirm it appears without changing any client registry.
-- Change the task to use subtraction and observe the new tool call.
-- Call `add` with a missing argument in inspection and examine the error.
-  Restore the valid call afterward.
-- Compare with Module 3: which code moved, and which loop logic stayed?
+- In `example_usage.py`, call `agent.run(task)` a second time with the same
+  Agent instance and task. The second call produces `[CACHE] hit` messages
+  because `SimpleCache` lives in that process. Running the script as a new
+  process starts with an empty cache again.
+- Register a new prompt version in `prompts.py` via
+  `default_registry.register(...)` and switch to it with
+  `default_registry.set_active(...)` — confirm the printed version tag
+  changes accordingly.
+- Instantiate two `Agent`s with different system prompts and tool subsets
+  (echoing Module 11's researcher/writer split) and compare their
+  `agent.stats()` independently.
+- Swap `SimpleCache`'s in-memory dict for a real persistent store (e.g.
+  Redis) as a production-hardening exercise — the interface (`get`/`set`)
+  is designed to make that swap straightforward.
 
-## Boundaries and next steps
+---
 
-This uses one trusted local server, reads its tool list once per run, and
-exposes that list to the model. Dynamic updates, multiple-server routing,
-remote authentication, and multimodal results are outside the exercise.
-A production host must decide which discovered tools it permits. MCP alone
-does not provide sandboxing or human approval; apply Module 8's policy ideas
-before exposing side-effecting tools.
+You've gone from a 1-turn LLM call (Module 0), through memory, planning, recovery, guardrails,
+observability, and orchestration patterns, to packaging the reusable core.
+The earlier modules show how to compose their advanced policies and
+workflows around that core when a project needs them.
 
-MCP also supports **Resources** (data the host can retrieve) and **Prompts**
-(reusable prompt templates). These are separate capabilities, not tools
-automatically added to the model. Explore them and remote Streamable HTTP
-after understanding local tool discovery and execution.
-
-> The harness still controls the agent. MCP standardizes how it discovers
-> and reaches independently provided tools.
-
-Continue to [Module 13: Production Roadmap](../module13/README.md).
-
-## Official references
-
-- [Architecture](https://modelcontextprotocol.io/docs/learn/architecture)
-- [SDK installation](https://py.sdk.modelcontextprotocol.io/get-started/installation/)
-- [MCPServer first steps](https://py.sdk.modelcontextprotocol.io/get-started/first-steps/)
-- [Client, discovery, and results](https://py.sdk.modelcontextprotocol.io/client/)
-- [Client transports](https://py.sdk.modelcontextprotocol.io/client/transports/)
+Next, [Module 13](../module13/README.md) shows how the familiar loop can
+discover and call tools in a separate MCP server. It is a standalone
+integration example; the library here remains the minimal local-tool core.

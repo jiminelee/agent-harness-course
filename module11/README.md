@@ -1,115 +1,65 @@
-# Module 11: Practical Deployment — Packaging a Reusable Library
+# Module 11: Multi-Agent & Orchestration
 
-**Files:** `agent_harness/` (package) + `example_usage.py`
-**Builds on:** The core loop and tool registry from Modules 1-3
+**File:** `module11_multi_agent.py`
+**Builds on:** Module 3's tool-calling loop shape
 
 ## Concept
 
-Every module so far was a standalone script. This module packages
-the core tool-calling loop, tool registry, and tool-error handling into a
-small, **reusable library**. It also introduces three concerns that become
-important when the same core is reused by multiple applications:
+Module 6 decomposed a task into subtasks, but one agent (fixed toolset,
+fixed persona) executed all of them. This module introduces genuinely
+different **specialist sub-agents** — a researcher (with real tools) and
+a writer (no tools, pure prose) — coordinated by an orchestrator.
 
-1. **Cost monitoring** — when an API response includes token usage,
-   `CostTracker` accumulates it into an estimated running dollar cost. It
-   still counts calls from providers that omit usage metadata.
-2. **Caching** — identical requests (same model + messages + tools) are
-   served from an in-memory cache instead of paying for/waiting on a
-   duplicate LLM call.
-3. **Prompt versioning** — system prompts are registered with explicit
-   version tags, so an application can record exactly which prompt version
-   produced a run.
+The pattern used: **sub-agents as tools**. Each sub-agent is wrapped in a
+plain Python function (`delegate_to_researcher`, `delegate_to_writer`)
+that *looks like a tool* to the orchestrator LLM. When the orchestrator
+"calls" one, a **complete, independent agent loop** runs internally (with
+its own system prompt, tools, and turn limit), and its final answer comes
+back as the "tool result."
 
-This package intentionally contains a **minimal core**, not every feature
-from the course. Memory compression, planning, reflection/retries, human
-confirmation, tracing, and multi-agent orchestration remain in Modules
-4-10 as patterns you can compose around this Agent. Keeping that boundary
-visible is part of the packaging lesson: a reusable core does not need to
-absorb every policy and workflow.
+## What's new since Module 3/6
 
-## Package layout
-
-```
-agent_harness/
-  __init__.py    # public API: Agent, tool, get_client, etc.
-  config.py      # BASE_URL / API_KEY / MODEL in ONE place (Ollama <-> OpenAI switch point)
-  tools.py       # the @tool decorator + registry (Module 3's pattern, packaged)
-  prompts.py     # PromptRegistry — versioned system prompts
-  cost.py        # CostTracker — token usage -> estimated cost
-  cache.py       # SimpleCache — hash-keyed response cache
-  loop.py        # the Agent class — the core loop, with caching + cost wired in
-example_usage.py # a new project's-eye view of using the packaged core
-```
-
-## What's new in the packaging step
-
-| Before | Module 11 |
+| Module 3/6 | Module 11 |
 |---|---|
-| Config constants copy-pasted at the top of every script | `config.py` — one place to switch providers for the whole project |
-| Tool registry re-declared per script | `tools.py` — shared, importable registry |
-| String constants for system prompts | `prompts.py` — `PromptRegistry` with explicit versions |
-| No cost visibility | `cost.py` — `CostTracker`, summarized via `agent.stats()` |
-| No caching | `cache.py` — `SimpleCache`, hit/miss rate reported via `agent.stats()` |
-| A single `run_agent_loop()` function per script | `Agent` class — instantiable, multiple independent agents can coexist |
+| One toolset, one persona for the whole run | Multiple personas (`RESEARCHER_SYSTEM_PROMPT`, `WRITER_SYSTEM_PROMPT`), each with their own tools |
+| Subtasks executed by the *same* kind of agent | Subtasks routed to genuinely *different* specialist agents |
+| `run_tool_calling_loop()` used once | The same generic loop function reused for 3 different agents (researcher, writer, orchestrator) |
 
-## Using it
+## Why this is elegant
 
-```python
-from agent_harness import Agent, tool
-
-@tool(description="...", parameters={...}, required=[...])
-def my_tool(...):
-    ...
-
-agent = Agent(system_prompt="You are a helpful assistant.")
-answer = agent.run("do something")
-print(agent.stats())   # cost + cache summary
-```
-
-Compare this to Module 1's ~100 lines just to get a basic loop running —
-this is the payoff of building everything incrementally: the core library
-is small and clean specifically because every piece in it was
-already understood, module by module.
+From the orchestrator's point of view, delegating to a sub-agent looks
+**exactly like calling a tool in Module 3** — it has no idea
+`delegate_to_researcher` secretly runs a whole multi-turn agent loop
+underneath. All the multi-agent complexity is hidden behind an ordinary
+function call, so no new "multi-agent-specific" code is needed in the
+orchestrator's loop at all.
 
 ## Key takeaway
 
-> Packaging isn't just "moving code into files" — it's making the
-> non-functional concerns (cost, caching, prompt versioning) first-class
-> parts of the interface, so every future project using this library gets
-> them automatically instead of everyone re-inventing them per script.
+> A "multi-agent system" is often just: one agent, whose tools happen to
+> be other complete agents. The generic tool-calling loop we built in
+> Module 3 already supports this — you don't need a different mechanism,
+> just a different kind of "tool."
 
 ## Run it
 
 From the project root:
 
 ```bash
-python module11/example_usage.py
+python module11/module11_multi_agent.py
 ```
+
+Watch the indented `[RESEARCHER | turn N]` and `[WRITER | turn N]` log
+lines nested inside the `[ORCHESTRATOR]` run — this nesting is the
+multi-agent hierarchy made visible.
 
 ## Things to try
 
-- In `example_usage.py`, call `agent.run(task)` a second time with the same
-  Agent instance and task. The second call produces `[CACHE] hit` messages
-  because `SimpleCache` lives in that process. Running the script as a new
-  process starts with an empty cache again.
-- Register a new prompt version in `prompts.py` via
-  `default_registry.register(...)` and switch to it with
-  `default_registry.set_active(...)` — confirm the printed version tag
-  changes accordingly.
-- Instantiate two `Agent`s with different system prompts and tool subsets
-  (echoing Module 10's researcher/writer split) and compare their
-  `agent.stats()` independently.
-- Swap `SimpleCache`'s in-memory dict for a real persistent store (e.g.
-  Redis) as a production-hardening exercise — the interface (`get`/`set`)
-  is designed to make that swap straightforward.
-
----
-
-You've gone from a 1-turn LLM call (Module 0), through memory, planning, recovery, guardrails,
-observability, and orchestration patterns, to packaging the reusable core.
-The earlier modules show how to compose their advanced policies and
-workflows around that core when a project needs them.
-
-Next, [Module 12](../module12/README.md) shows how the familiar loop can
-discover and call tools in a separate MCP server. It is a standalone
-integration example; the library here remains the minimal local-tool core.
+- Add a third specialist (e.g. a "fact-checker" agent) and wire it in as
+  another `delegate_to_...` tool for the orchestrator.
+- Give the researcher and writer agents different models (e.g. a cheaper
+  model for research, a stronger one for writing) — since each sub-agent
+  loop is independent, this requires no structural changes.
+- Combine this with Module 10's tracing: wrap each sub-agent's
+  `run_tool_calling_loop()` call in its own `Tracer` to get separate,
+  attributable traces per specialist.

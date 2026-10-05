@@ -13,7 +13,7 @@ prompt on Tuesday").
 PromptRegistry stores multiple named, versioned prompts and always
 returns both the text AND its version tag together, so callers can log
 "this run used prompt researcher_v3" alongside the rest of the trace
-(see Module 9's Tracer -- pairing prompt version with trace events is
+(see Module 10's Tracer -- pairing prompt version with trace events is
 exactly how you'd correlate a regression with a specific prompt change).
 """
 
