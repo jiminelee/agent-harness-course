@@ -27,10 +27,10 @@
 
 | Ch. | Title | The question it answers | Status |
 |---|---|---|---|
-| 0 | Life Without a Harness | What can't you do with a single LLM call? | ⬜ |
-| 1 | The Minimal Agent Loop | How do you keep a model going until it says it's done? | ⬜ |
+| [0](chapters/ch00-no-harness.md) | Life Without a Harness | What can't you do with a single LLM call? | ✅ |
+| [1](chapters/ch01-agent-loop.md) | The Minimal Agent Loop | How do you keep a model going until it says it's done? | ✅ |
 | [2](chapters/ch02-first-tool.md) | Your First Tool | What changes when you hand the model a calculator? | ✅ pilot |
-| 3 | The Tool Registry | How do you organize ten tools, and what do you do when one fails? | ⬜ |
+| [3](chapters/ch03-tool-registry.md) | The Tool Registry | How do you organize ten tools, and what do you do when one fails? | ✅ |
 
 ### Part II. Memory — Within a Session and Beyond It
 
