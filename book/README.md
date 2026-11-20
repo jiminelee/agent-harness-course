@@ -36,16 +36,16 @@
 
 | Ch. | Title | The question it answers | Status |
 |---|---|---|---|
-| 4 | Managing Context | When a conversation gets long, how do you shrink it without losing the original task? | ⬜ |
-| 5 | Persistent Memory | What do you save, and where, so the agent remembers after a restart? | ⬜ |
+| [4](chapters/ch04-context-management.md) | Managing Context | When a conversation gets long, how do you shrink it without losing the original task? | ✅ |
+| [5](chapters/ch05-persistent-memory.md) | Persistent Memory | What do you save, and where, so the agent remembers after a restart? | ✅ |
 
 ### Part III. Agents You Can Trust
 
 > **Read this map before Part III**: Chapters 4–11 do *not* stack every
 > earlier feature into one growing program. Each one branches off the basic
 > loop from Chapters 1–3 and focuses on a single feature. ("Why doesn't the
-> Chapter 6 code have Chapter 5's memory?" is expected.) Part III opens with a
-> diagram of this branching structure.
+> Chapter 6 code have Chapter 5's memory?" is expected.) The end of Chapter 5
+> has a diagram of this branching structure.
 
 | Ch. | Title | The question it answers | Status |
 |---|---|---|---|
