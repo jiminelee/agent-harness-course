@@ -37,6 +37,10 @@ check the provider's compatibility documentation when using one.
 
 ## Setup
 
+Use **Python 3.10 or newer**. Modules 5 and 9 use the `str | None` type-hint
+syntax added in 3.10, and Module 13's MCP SDK requires it. Check your version
+with `python3 --version`.
+
 Create and activate a project-local virtual environment, then install the
 dependency inside it:
 
@@ -62,10 +66,13 @@ Run the module commands below while the virtual environment is activated.
 When finished, leave it with `deactivate`.
 
 Module 13 additionally uses the official MCP Python SDK's `MCPServer` and
-`Client` APIs. It requires Python 3.10+; install its verified dependencies
-before running that module:
+`Client` APIs. Its requirements pin `openai==3.19.2`, which is older than the
+version the other modules were tested with, so install them in a separate
+virtual environment and use that environment only for Module 13:
 
 ```bash
+python3 -m venv .venv13
+source .venv13/bin/activate
 python -m pip install -r module13/requirements.txt
 ```
 
@@ -117,6 +124,35 @@ python module13/module13_mcp_tools.py   # agent using MCP tools
 | [13](module13/README.md) | MCP: External Tools | MCPServer + Client, discovery and execution through a local tool server |
 | [14](module14/README.md) | Production Roadmap | What to study and harden after completing the course |
 
+## Companion Book
+
+The [`book/`](book/README.md) folder contains a beginner-friendly companion
+book, *Build Your Own Agent Harness*. The module READMEs are short
+references; the book explains why each piece is built the way it is, walks
+through the code, shows real output from running every module (including the
+model's mistakes), and helps when you get stuck.
+
+- **Chapter N goes with `moduleNN/`**, so you can move between the book and
+  the code without translating.
+- Start with [Before You Begin](book/chapters/before-you-begin.md), which
+  covers setup, then read [Chapter 0](book/chapters/ch00-no-harness.md).
+- The appendices collect a [glossary](book/appendices/appendix-a-glossary.md),
+  [common errors and fixes](book/appendices/appendix-b-common-errors.md),
+  [how to switch providers](book/appendices/appendix-c-switching-providers.md),
+  and [exercise solutions](book/appendices/appendix-d-solutions.md).
+
+The chapters are Markdown files that read fine on GitHub. To build them into
+an HTML book with navigation and search, install [Quarto](https://quarto.org)
+and run:
+
+```bash
+cd book
+quarto render
+```
+
+The output goes to `book/_book/` (Git-ignored). Use `quarto preview` instead
+to open a live preview in your browser.
+
 ## Files in this project
 
 ```
@@ -147,6 +183,11 @@ module13/
   module13_mcp_tools.py       # agent loop using MCP tools
 module14/
   README.md                   # roadmap from educational code to production
+book/                         # companion book (see "Companion Book" above)
+  README.md                   # table of contents and writing guidelines
+  _quarto.yml                 # Quarto book configuration
+  chapters/                   # Before You Begin + Chapters 0-14
+  appendices/                 # Appendices A-D
 README.md                     # this file
 ```
 
@@ -154,7 +195,8 @@ README.md                     # this file
 
 1. Read a module's README (linked above) before running its code —
    each one explains the new concept and exactly what changed from the
-   previous module.
+   previous module. For a slower, more detailed explanation, read the
+   matching chapter of the companion book.
 2. Run the script and watch the step-by-step console output — every
    module prints what it's doing at each step so you can follow the
    mechanics live, not just read about them.
