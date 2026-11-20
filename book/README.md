@@ -49,12 +49,12 @@
 
 | Ch. | Title | The question it answers | Status |
 |---|---|---|---|
-| 6 | Planning and Task Decomposition | Can you get the agent to make a plan before tackling a big job? | ⬜ |
-| 7 | Error Recovery and Self-Correction | How does an agent fix its own mistakes without retrying forever? | ⬜ |
-| 8 | Parallel Execution | How much faster is it to run independent tool calls at the same time? | ⬜ |
-| 9 | Guardrails and Safety | How do you make the agent ask a human before doing something risky? | ⬜ |
-| 10 | Observability and Debugging | When an agent misbehaves, how do you see what actually happened? | ⬜ |
-| 11 | Multi-Agent Orchestration | Can an agent call another agent the way it calls a tool? | ⬜ |
+| [6](chapters/ch06-planning.md) | Planning and Task Decomposition | Can you get the agent to make a plan before tackling a big job? | ✅ |
+| [7](chapters/ch07-error-recovery.md) | Error Recovery and Self-Correction | How does an agent fix its own mistakes without retrying forever? | ✅ |
+| [8](chapters/ch08-parallel-execution.md) | Parallel Execution | How much faster is it to run independent tool calls at the same time? | ✅ |
+| [9](chapters/ch09-guardrails.md) | Guardrails and Safety | How do you make the agent ask a human before doing something risky? | ✅ |
+| [10](chapters/ch10-observability.md) | Observability and Debugging | When an agent misbehaves, how do you see what actually happened? | ✅ |
+| [11](chapters/ch11-multi-agent.md) | Multi-Agent Orchestration | Can an agent call another agent the way it calls a tool? | ✅ |
 
 ### Part IV. Toward the Real World
 
@@ -65,7 +65,7 @@
 | 14 | The Road to Production | What else do you need to learn and change before this code serves real users? | ⬜ |
 
 - Before Chapter 12, a **bridge section**: packages and modules, `import`, and using classes to bundle state
-- Before Chapter 13, a **bridge section**: `async`/`await` in five minutes
+- `async`/`await` basics are covered in Chapter 8, Section 8.3 (Chapter 13 relies on them)
 
 ### Appendices ⬜
 - A. Glossary
