@@ -60,11 +60,11 @@
 
 | Ch. | Title | The question it answers | Status |
 |---|---|---|---|
-| 12 | Packaging a Reusable Library | How do you turn a script into a package other projects can `import`? | ⬜ |
-| 13 | Connecting External Tools with MCP | How do you discover and call tools that live in a separate server process? | ⬜ |
-| 14 | The Road to Production | What else do you need to learn and change before this code serves real users? | ⬜ |
+| [12](chapters/ch12-packaged-library.md) | Packaging a Reusable Library | How do you turn a script into a package other projects can `import`? | ✅ |
+| [13](chapters/ch13-mcp-tools.md) | Connecting External Tools with MCP | How do you discover and call tools that live in a separate server process? | ✅ |
+| [14](chapters/ch14-road-to-production.md) | The Road to Production | What else do you need to learn and change before this code serves real users? | ✅ |
 
-- Before Chapter 12, a **bridge section**: packages and modules, `import`, and using classes to bundle state
+- Packages, modules, `import`, and classes are introduced in Chapter 12, Section 12.2
 - `async`/`await` basics are covered in Chapter 8, Section 8.3 (Chapter 13 relies on them)
 
 ### Appendices ⬜
