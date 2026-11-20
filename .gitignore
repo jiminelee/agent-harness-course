@@ -32,3 +32,7 @@ module10/agent_trace.json
 
 # Persistent project knowledge created by Module 5
 module05/memory.json
+
+# Quarto build output for the companion book
+book/_book/
+book/.quarto/

@@ -47,16 +47,16 @@ three, wait for all of them together, and continue when the last one is done.
 ```mermaid
 gantt
     title Three 1.5-second searches
-    dateFormat  X
-    axisFormat  %ss
+    dateFormat  x
+    axisFormat  %S.%Ls
     section One at a time
-    search 1 :0, 1.5
-    search 2 :1.5, 3
-    search 3 :3, 4.5
+    search 1 :s1, 0, 1500ms
+    search 2 :s2, after s1, 1500ms
+    search 3 :s3, after s2, 1500ms
     section Concurrent
-    search 1 :0, 1.5
-    search 2 :0, 1.5
-    search 3 :0, 1.5
+    search 1 :c1, 0, 1500ms
+    search 2 :c2, 0, 1500ms
+    search 3 :c3, 0, 1500ms
 ```
 
 There's a catch. Real services limit how many requests you can send at once.

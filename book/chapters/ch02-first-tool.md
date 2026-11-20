@@ -133,7 +133,7 @@ It's an ordinary Python function. Two details are worth a closer look:
 dangerous functions like `open()`, but it's still **not safe for untrusted
 input**. We use it here only because it's the shortest way to show how tool
 calling flows. A real service should use a library that parses math
-expressions and nothing else. Chapter 14, Section 1 comes back to this.
+expressions and nothing else. Chapter 14, Section 14.3, comes back to this.
 :::
 
 ### Piece 2. The schema — the menu the model reads

@@ -1,0 +1,51 @@
+project:
+  type: book
+  output-dir: _book
+
+book:
+  title: "Build Your Own Agent Harness"
+  subtitle: "A hands-on companion to the agent-harness course code"
+  chapters:
+    - index.md
+    - chapters/before-you-begin.md
+    - part: "Part I. The Skeleton of an Agent"
+      chapters:
+        - chapters/ch00-no-harness.md
+        - chapters/ch01-agent-loop.md
+        - chapters/ch02-first-tool.md
+        - chapters/ch03-tool-registry.md
+    - part: "Part II. Memory"
+      chapters:
+        - chapters/ch04-context-management.md
+        - chapters/ch05-persistent-memory.md
+    - part: "Part III. Agents You Can Trust"
+      chapters:
+        - chapters/ch06-planning.md
+        - chapters/ch07-error-recovery.md
+        - chapters/ch08-parallel-execution.md
+        - chapters/ch09-guardrails.md
+        - chapters/ch10-observability.md
+        - chapters/ch11-multi-agent.md
+    - part: "Part IV. Toward the Real World"
+      chapters:
+        - chapters/ch12-packaged-library.md
+        - chapters/ch13-mcp-tools.md
+        - chapters/ch14-road-to-production.md
+  appendices:
+    - appendices/appendix-a-glossary.md
+    - appendices/appendix-b-common-errors.md
+    - appendices/appendix-c-switching-providers.md
+    - appendices/appendix-d-solutions.md
+
+# Chapter titles already carry their own numbers ("Chapter 2. ..."),
+# so Quarto's automatic numbering is turned off.
+number-sections: false
+
+format:
+  html:
+    theme:
+      light: cosmo
+      dark: darkly
+    toc: true
+    code-copy: true
+    include-after-body: _mermaid.html

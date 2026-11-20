@@ -1,0 +1,18 @@
+<!--
+  The chapters use plain ```mermaid code blocks so the diagrams also render on
+  GitHub. Quarto only draws diagrams written as ```{mermaid} cells, so in the
+  HTML book this script draws the plain blocks itself.
+-->
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.esm.min.mjs";
+
+  const blocks = document.querySelectorAll("pre.mermaid");
+  blocks.forEach((pre) => {
+    const code = pre.querySelector("code");
+    if (code) pre.textContent = code.textContent;
+  });
+
+  const dark = document.body.classList.contains("quarto-dark");
+  mermaid.initialize({ startOnLoad: false, theme: dark ? "dark" : "default" });
+  if (blocks.length) await mermaid.run({ nodes: [...blocks] });
+</script>

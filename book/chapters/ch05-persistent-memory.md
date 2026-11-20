@@ -66,7 +66,7 @@ sequenceDiagram
     H->>M: task + tools
     M-->>H: remember(key="python-version", content="Python 3.11")
     H->>F: write
-    Note over U,F: (program exits; the conversation is gone)
+    Note over U,F: The program exits, and the conversation is gone
     Note over U,F: Friday
     U->>H: "Which Python version does this project use?"
     H->>M: task + tools (a brand-new conversation)
