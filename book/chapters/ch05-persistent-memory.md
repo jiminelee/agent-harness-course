@@ -610,29 +610,4 @@ first is what makes the combination understandable later.
 
 ## Solutions and Hints
 
-> In the final version, these move to Appendix D.
-
-1. It reports your edited value. The file is the agent's only memory between
-   runs, so whatever the file says is the truth as far as the agent knows. That's
-   handy for fixing mistakes, and it's also why the file must be treated as
-   data rather than trusted instructions.
-2. With the original `read_memory`, our model said it didn't have the
-   version saved. With the improved version, it found the `runtime` entry
-   both times. Your model may behave differently, which is the point:
-   behavior that depends on the prompt can vary, while behavior in code doesn't.
-3. Answers vary: the model may pick one, mention both, or ask which is right.
-   A good answer mentions both and flags the conflict. The real fix is to
-   prevent it: reuse keys when updating, or have `remember` check for entries
-   with similar content (much harder than it sounds).
-4. `validate_entry`, `load_entries`, `read_memory`, and `remember` all assume
-   the value is a plain string. Old files will fail validation unless you
-   convert them or accept both formats. This is a *schema migration*, and it's
-   why you should design the format before you have lots of saved data.
-5. Something like this at the top of `remember` and `forget`:
-   ```python
-   if input(f"Allow the agent to change memory '{key}'? [y/N] ").strip().lower() != "y":
-       return "The user declined this memory change."
-   ```
-   Test 2 can no longer save anything without your approval. The cost is an
-   interruption on every save, even the ones you asked for. Chapter 9 explores
-   how to choose which actions need approval.
+Solutions to this chapter's exercises are in [Appendix D](../appendices/appendix-d-solutions.md#chapter-5-persistent-memory).

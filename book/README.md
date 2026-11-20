@@ -16,7 +16,7 @@
 
 ## Table of Contents
 
-### Before You Begin ⬜
+### [Before You Begin](chapters/before-you-begin.md) ✅
 - What an "agent" is, and why it needs a "harness"
 - Anatomy of a single LLM API call: `messages`, roles (system / user / assistant), tokens
 - Setting up: a virtual environment, the `openai` package, installing Ollama and pulling `gemma4:e4b`
@@ -67,11 +67,11 @@
 - Packages, modules, `import`, and classes are introduced in Chapter 12, Section 12.2
 - `async`/`await` basics are covered in Chapter 8, Section 8.3 (Chapter 13 relies on them)
 
-### Appendices ⬜
-- A. Glossary
-- B. Common Errors and Fixes (collected from each chapter's "Common Problems")
-- C. Switching to OpenAI or Another OpenAI-Compatible Provider
-- D. Exercise Solutions
+### Appendices ✅
+- [A. Glossary](appendices/appendix-a-glossary.md)
+- [B. Common Errors and Fixes](appendices/appendix-b-common-errors.md) (collected from each chapter's "Common Problems")
+- [C. Switching to OpenAI or Another OpenAI-Compatible Provider](appendices/appendix-c-switching-providers.md)
+- [D. Exercise Solutions](appendices/appendix-d-solutions.md)
 
 ---
 
@@ -85,7 +85,7 @@ The Chapter 2 pilot follows this template. New chapters should keep the same ord
 4. **Walking Through the Code** — excerpts of *only what changed* since the last chapter, with file paths and line numbers
 5. **Running It** — the command, the real output, and a line-by-line reading of that output
 6. **Common Problems** — where beginners get stuck, and how to get unstuck
-7. **Try It Yourself** — three to five exercises, easiest first. Solutions at the end of the chapter (Appendix D in the final version)
+7. **Try It Yourself** — three to five exercises, easiest first. Solutions go in Appendix D; the chapter ends with a link to them
 8. **Recap** — one key sentence and a bridge to the next chapter
 
 ## Writing Guidelines

@@ -387,25 +387,4 @@ structured traces that record every step, saved to a file you can inspect.
 
 ## Solutions and Hints
 
-> In the final version, these move to Appendix D.
-
-1. The model usually calls `delete_file` again, and the gate appears again:
-   every call goes through `execute_tool_call()`, and nothing remembers an
-   earlier denial. Whether that's what you want is a design decision. Some
-   systems remember a denial for the rest of the session.
-2. Yes. The gate checks `tool_name in DANGEROUS_TOOLS`, which the decorator
-   fills in automatically.
-3. Add these lines to `audit()`:
-   ```python
-   with open(MODULE_DIR / "audit.jsonl", "a", encoding="utf-8") as f:
-       f.write(json.dumps(entry) + "\n")
-   ```
-   One JSON object per line ("JSON Lines") is a common format for logs: easy
-   to append to, and easy to read back one line at a time.
-4. Define `SCRATCH_DIR = MODULE_DIR / "scratch"`, use it in place of
-   `MODULE_DIR` in both `delete_file` and the validation, and check
-   `target.parent != SCRATCH_DIR`.
-5. People approve what they understand. "delete_file {'path': 'notes.txt'}"
-   is easy to wave through. "notes.txt, 48 KB, first line: 'Q3 budget draft'"
-   makes the consequences concrete. A confirmation prompt is only as good as
-   the information it shows.
+Solutions to this chapter's exercises are in [Appendix D](../appendices/appendix-d-solutions.md#chapter-9-guardrails-and-safety).

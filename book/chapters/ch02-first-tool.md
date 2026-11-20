@@ -442,26 +442,4 @@ model can read.
 
 ## Solutions and Hints
 
-> In the final version, these move to Appendix D.
-
-1. The correct answer is `3820574872`. When we ran it while writing this
-   chapter, the model called `calculate('384712 * 9931')` and replied
-   "384712 * 9931 is **3,820,574,872**." As long as the model calls the tool,
-   `eval` does the math exactly, so a wrong answer means the model skipped the tool.
-2. There's no tool call; the answer arrives in STEP 1. It may be right, or it
-   may be wrong like in Section 2.1. Because the system prompt still says "use
-   calculate," you may also get a reply that only *talks about* using the tool
-   (see Section 2.6).
-3. There's no single right answer. The model can often guess from the name
-   (`calculate`) alone, but its behavior may wobble from run to run. The more
-   tools you have, the more the quality of each `description` matters.
-4. Each tool call adds one STEP and two `messages` (the order plus the result).
-   When we ran it, the model made three calls: `438 * 12` → `5256 - 57` →
-   `5199 / 3`, giving STEP 1 (2 messages) → STEP 2 (4) → STEP 3 (6) → STEP 4
-   (8, final answer). Notice the model copied the previous result (`5256`) into
-   the next expression. That's proof it read the `role="tool"` message. Small
-   models sometimes ignore the instruction and do it all in one call.
-5. Three places: ① the `count_chars` function, ② a new entry in `TOOLS_SCHEMA`,
-   and ③ `"count_chars": count_chars` in `TOOL_REGISTRY`. You may also want ④ a
-   mention in the system prompt. Forget ② and the model won't know the tool
-   exists; forget ③ and you'll get an `unknown tool` error.
+Solutions to this chapter's exercises are in [Appendix D](../appendices/appendix-d-solutions.md#chapter-2-your-first-tool).

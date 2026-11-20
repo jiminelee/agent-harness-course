@@ -561,27 +561,4 @@ time you run it.
 
 ## Solutions and Hints
 
-> In the final version, these move to Appendix D.
-
-1. In our run, compression ran four times, once before each of steps 3–6.
-   Each summary added the newest result to the list and kept the earlier ones,
-   for example "Calculate 340/4: Completed, result is 85.0." The context size
-   leveled off around 1,400–1,600 characters (Section 4.5).
-2. In our two runs with the default settings, the final answer was in ALL
-   CAPS both times. The instruction is in `context.task`, which
-   `build_messages()` sends word for word every time, and compression never
-   touches it. (One of those runs did redo two searches after compression;
-   protecting the task doesn't protect the record of what's been done.)
-3. Your numbers will be close but not identical: the model's wording and
-   tool-call ids change every run, so message sizes shift by a few characters.
-4. Now each step is a few thousand characters, and the summary is a few
-   hundred, so each compression removes most of a step's size. This is the
-   situation compression was designed for.
-5. It depends on the provider, and the answer is a little alarming. When we
-   sent Ollama a `tool` result with no matching request, it **accepted it
-   without any error** and the model simply carried on. OpenAI's API, by
-   contrast, rejects such a request with an error saying a `tool` message
-   must follow an assistant message that has `tool_calls`. A provider that
-   silently accepts a broken conversation is worse than one that rejects it,
-   because you never find out. Because `compress_history()` only ever removes
-   whole steps, it can't create this situation on any provider.
+Solutions to this chapter's exercises are in [Appendix D](../appendices/appendix-d-solutions.md#chapter-4-managing-context).

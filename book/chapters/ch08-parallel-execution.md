@@ -353,18 +353,4 @@ safer: what should happen before an agent does something that can't be undone?
 
 ## Solutions and Hints
 
-> In the final version, these move to Appendix D.
-
-1. About 4.5 seconds: the three searches wait for the single permit one after
-   another, exactly like the `for` loop.
-2. Three rounds (3 + 3 + 1), so about 4.5 seconds.
-3. In our runs, the two model calls took about 11.5 of the 13 seconds, roughly
-   90%. On a fast hosted API, model calls are quicker, but they're still
-   usually the largest share.
-4. For example:
-   `searches = sum(tc.function.name == "search_web" for tc in message.tool_calls)`
-   and use `searches * 1.5` in the message.
-5. On a hosted API, the subtasks overlap and the total time drops. On a local
-   Ollama server, the requests may queue up and finish no faster than before.
-   This is a good example of an optimization whose benefit depends on
-   something outside your code.
+Solutions to this chapter's exercises are in [Appendix D](../appendices/appendix-d-solutions.md#chapter-8-parallel-execution).

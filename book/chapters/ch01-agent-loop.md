@@ -426,31 +426,4 @@ model its first tool, so it can finally *do* something instead of only talking.
 
 ## Solutions and Hints
 
-> In the final version, these move to Appendix D.
-
-1. After one turn, there's no marker, so the loop ends with the warning and
-   returns `"(Agent did not finish within the turn limit.)"`. The safety valve
-   works even when everything else goes wrong.
-2. You should see `system`, `user`, then alternating `assistant` and `user`
-   ("Continue...") entries: two new messages per turn, matching the 2 → 4 → 6
-   counts in the log.
-3. With only `after.strip()`, the default task comes back empty whenever the
-   model puts the marker at the end, which in our runs was every time. For
-   the second part, one approach:
-   ```python
-   before, after = assistant_reply.split(DONE_MARKER, 1)
-   final_answer = after.strip() or before.strip()
-   if not final_answer:
-       earlier = [m["content"] for m in messages[:-1] if m["role"] == "assistant"]
-       final_answer = earlier[-1].strip() if earlier else ""
-   ```
-   `messages[:-1]` skips the reply we just appended (the bare marker). Notice
-   how much code it now takes to answer "what did the model mean?" That's
-   the cost of a text protocol, and the reason Chapter 2 moves away from it.
-4. Thanks to the f-string, the system prompt picks up the new marker
-   automatically, so nothing else has to change. If the prompt said
-   `TASK_COMPLETE` while the code checked for `ALL_DONE`, the model would
-   never "finish," and you'd hit `MAX_TURNS` every time.
-5. The model never writes the marker, so after six turns you hit the
-   `MAX_TURNS` warning. Watch the message count grow by two every step.
-   Without `MAX_TURNS`, this would run (and bill you) forever.
+Solutions to this chapter's exercises are in [Appendix D](../appendices/appendix-d-solutions.md#chapter-1-the-minimal-agent-loop).

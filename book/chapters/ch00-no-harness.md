@@ -261,25 +261,4 @@ the call in a loop so the model can keep working until it says it's done.
 
 ## Solutions and Hints
 
-> In the final version, these move to Appendix D.
-
-1. `2 + 2` is almost always right. With big numbers, the model usually gives
-   a confident answer with no warning, even when it's wrong. It rarely says
-   "I might be wrong" unless you ask it to.
-2. The wording changes every time, and with harder questions the facts or
-   numbers can change too. This is why later chapters never rely on the model
-   giving the exact same output twice.
-3. The answer gets squeezed into five words (or close to it). A system
-   message is how you give the model standing instructions. Starting in
-   Chapter 1, every module uses one.
-4. Something like:
-   ```python
-   messages = [
-       {"role": "user", "content": "What is the capital of France?"},
-       {"role": "assistant", "content": "The capital of France is Paris."},
-       {"role": "user", "content": "What did I just ask you?"},
-   ]
-   ```
-   The model will now say you asked about the capital of France. The model
-   didn't remember anything. *You* handed it the conversation. Memory lives
-   in your code, not in the model, and that's the key idea of Chapter 1.
+Solutions to this chapter's exercises are in [Appendix D](../appendices/appendix-d-solutions.md#chapter-0-life-without-a-harness).

@@ -14,7 +14,17 @@
 | Code | `module13/tool_server.py`, `module13/inspect_tools.py`, `module13/module13_mcp_tools.py` |
 | Environment | **Python 3.10+**, this module's pinned packages (see below), and `ollama serve` for Step 2 |
 
-Install this module's dependencies inside your virtual environment first:
+Install this module's dependencies first. As "Before You Begin" explains, it's
+simplest to use a separate virtual environment for this chapter, because the
+pinned `openai` version is older than the one used in Chapters 0–12:
+
+```bash
+python3 -m venv .venv13
+```
+
+```bash
+source .venv13/bin/activate
+```
 
 ```bash
 python -m pip install -r module13/requirements.txt
@@ -536,21 +546,4 @@ what to change, to take these ideas to production.
 
 ## Solutions and Hints
 
-> In the final version, these move to Appendix D.
-
-1. No. The inspector discovers `subtract` and prints its generated schema. The
-   host only knows names it discovered, so new server tools need no host changes.
-2. It should call `multiply(6, 7)` and then `subtract(42, 2)`. If it doesn't,
-   check that you restarted (each run starts a fresh server, so a new run is
-   enough).
-3. The description becomes empty or a generic fallback, depending on the SDK.
-   With only two clearly named tools, the model usually still chooses well. With
-   dozens of similar tools, good descriptions matter much more.
-4. Filter with `tools = [t for t in tools if t.name in ALLOWED]` right after
-   discovery. The model never sees `multiply`, so it can't request it. It may do
-   the multiplication itself or say it can't, which is a good reason to check
-   the logs rather than the answer.
-5. Check the exception message (or type) in the `except` block. If it's the
-   structured-content validation error, return
-   `f"ERROR: tool '{name}' returned a result that doesn't match its schema: {exc}"`.
-   The model then sees the problem, and the run continues.
+Solutions to this chapter's exercises are in [Appendix D](../appendices/appendix-d-solutions.md#chapter-13-connecting-external-tools-with-mcp).

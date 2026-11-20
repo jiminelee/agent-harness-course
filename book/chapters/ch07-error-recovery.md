@@ -422,21 +422,4 @@ needs several independent tool calls, why wait for them one at a time?
 
 ## Solutions and Hints
 
-> In the final version, these move to Appendix D.
-
-1. After the first failure. The second call is skipped, and the model gets the
-   "has failed 1 times in a row" message. (The grammar isn't perfect for a
-   limit of 1; you could fix the message too.)
-2. The loop runs zero times, so it returns the first answer without any
-   critique. Useful for comparing behavior with and without the editor.
-3. In our tests, yes: the critic failed the 591 answer both times and passed
-   the 491 answer both times (Section 7.6).
-4. `bool("false")` is `True`, because any non-empty string is truthy, so the
-   current code would accept the answer. Use
-   `if verdict.get("passes") is True:` instead. Model output is text, and
-   text that *looks* like a boolean isn't one.
-5. One approach: collect every `role="tool"` message's content from `messages`
-   and add a line like `Tool results gathered: ...` to the critique prompt.
-   With the real product in front of it, the critic has something concrete to
-   compare against. This moves the critic away from "fresh eyes" toward
-   "checker with evidence," which is usually the better trade for factual tasks.
+Solutions to this chapter's exercises are in [Appendix D](../appendices/appendix-d-solutions.md#chapter-7-error-recovery-and-self-correction).

@@ -386,26 +386,4 @@ its own work.
 
 ## Solutions and Hints
 
-> In the final version, these move to Appendix D.
-
-1. Results vary. In all of our runs the plan parsed successfully, either as
-   plain JSON or after the fence-stripping step. Code fences are common with
-   many models and prompts, which is why the code handles them.
-2. Usually one subtask, sometimes two (e.g. "compute" and "report"). The
-   pattern still works; it just has less to do.
-3. For example:
-   ```python
-   if not (isinstance(subtasks, list) and subtasks
-           and all(isinstance(s, str) and s.strip() for s in subtasks)):
-       print(f"[PLAN] Unexpected plan shape, falling back. Raw: {raw}")
-       subtasks = [user_task]
-   ```
-4. Collect a list of `f"{name}({arguments}) → {result}"` strings as tools run,
-   and return them joined with the final message. The synthesizer can now copy
-   `45.0` and `42` instead of recomputing them. That matters a lot more for
-   numbers it can't easily work out itself.
-5. Keep a running list of results in `run_plan_and_execute()` and pass it in,
-   e.g. `{"role": "user", "content": f"Results so far:\n{previous}\n\nYour subtask: {subtask}"}`.
-   Combined with Exercise 4, subtask 2 can see `391` and call
-   `calculate("391 + 100")`. Notice that you've given up some isolation:
-   every subtask's context now grows with the number of earlier results.
+Solutions to this chapter's exercises are in [Appendix D](../appendices/appendix-d-solutions.md#chapter-6-planning-and-task-decomposition).

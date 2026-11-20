@@ -369,33 +369,4 @@ it to tools in a separate process, and look at what it takes to go to production
 
 ## Solutions and Hints
 
-> In the final version, these move to Appendix D.
-
-1. Wrap the method once at the top of `run_orchestrator()` or in your own
-   script:
-   ```python
-   real_create = client.chat.completions.create
-   count = 0
-   def counted(**kwargs):
-       global count
-       count += 1
-       return real_create(**kwargs)
-   client.chat.completions.create = counted
-   ```
-   You'll usually see 7: three orchestrator turns, two or three researcher
-   turns, and one writer turn. It changes if the researcher searches more or less.
-2. In our runs, the orchestrator always condensed and rephrased the notes, and
-   added its own instructions about tone. Sometimes it also added details, so
-   compare carefully.
-3. With nothing real to go on, the writer should produce a short paragraph
-   saying the information couldn't be found, or the orchestrator may decide not
-   to call the writer at all. Either is more honest than a confident paragraph
-   built on nothing.
-4. One approach: in `delegate_to_writer`, store the writer's output in a
-   variable outside the function, and after `run_orchestrator()` returns,
-   return that stored text if it exists. In our runs, this would save one call
-   and about 5–6 seconds.
-5. Have `delegate_to_researcher` return both its notes and the list of
-   `role="tool"` contents from its `messages` (you'll need to change
-   `run_tool_calling_loop()` to return those too). With stub searches, a good
-   fact-checker should flag nearly every claim, which is the right answer.
+Solutions to this chapter's exercises are in [Appendix D](../appendices/appendix-d-solutions.md#chapter-11-multi-agent-orchestration).

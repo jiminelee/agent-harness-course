@@ -500,30 +500,4 @@ and calls them over a standard interface.
 
 ## Solutions and Hints
 
-> In the final version, these move to Appendix D.
-
-1. The second run should take close to zero seconds, with `[CACHE] hit` on
-   every model call, and the call count and token totals in `stats()` stay the
-   same while the hit count goes up. (If a tool result changes between runs, as
-   with `now()`, later calls miss.)
-2. Yes: `get()` returns the active version along with the text, and the example
-   prints it. Recording that version with each run is what makes a "this broke
-   when we changed the prompt" bug traceable.
-3. The search tool isn't in its schema, so the model doesn't know it exists.
-   It will usually answer from its own knowledge or say it can't search. If it
-   asks for `search_web` anyway, `execute_tool_call()` looks in the agent's own
-   registry and returns "unknown tool."
-4. For example, in `_call_llm()`:
-   ```python
-   msg = response.choices[0].message
-   ok = msg.tool_calls or (msg.content and not msg.content.startswith("<|"))
-   if self.cache is not None and ok:
-       self.cache.set(MODEL, messages, self.tools_schema, response)
-   ```
-   The bad answer is no longer cached, so the second run makes fresh model
-   calls and may get a good answer.
-5. Wrap each function: `def guarded(*args, **kwargs):` that checks a counter,
-   calls the original, and updates the counter on `"ERROR:"` results. Build a
-   new registry of guarded functions and pass it to `Agent`. The core didn't
-   need to change, which is exactly the benefit of keeping it small and
-   letting policies wrap around it.
+Solutions to this chapter's exercises are in [Appendix D](../appendices/appendix-d-solutions.md#chapter-12-packaging-a-reusable-library).

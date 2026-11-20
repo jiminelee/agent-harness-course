@@ -396,32 +396,4 @@ agents: a researcher and a writer, called as if they were tools.
 
 ## Solutions and Hints
 
-> In the final version, these move to Appendix D.
-
-1. For example:
-   ```python
-   try:
-       result = run_agent_loop(task, tracer)
-       ...
-   finally:
-       tracer.save(TRACE_FILE)
-   ```
-   After Ctrl+C, the file is written with every event recorded so far.
-2. Add to the end of `record()`:
-   ```python
-   with open(TRACE_FILE.with_suffix(".jsonl"), "a", encoding="utf-8") as f:
-       f.write(json.dumps(event, ensure_ascii=False) + "\n")
-   ```
-   With the simulated crash, the file has three lines: one model call and two
-   tool calls.
-3. For our run, it prints
-   `[('calculate', '336'), ('search_web', "[STUB RESULT] Pretend web search results for: 'agent tracing best practices'.")]`.
-4. A full trace lets you reconstruct the whole conversation, but it's much
-   bigger, and it may contain things you shouldn't keep, like personal data a
-   user typed in. Real systems often store full traces briefly and condensed
-   traces long-term, and redact sensitive fields.
-5. Matching sentences to sources is hard because the model rarely quotes. It
-   paraphrases, combines, and adds its own knowledge. This is why many
-   production systems ask the model to *cite* which tool result supports each
-   claim, and then check the citations, rather than trying to reverse-engineer
-   them afterward.
+Solutions to this chapter's exercises are in [Appendix D](../appendices/appendix-d-solutions.md#chapter-10-observability-and-debugging).

@@ -554,38 +554,4 @@ Chapter 4 shows how to keep a long conversation from outgrowing the model.
 
 ## Solutions and Hints
 
-> In the final version, these move to Appendix D.
-
-1. Both are caught by (3) as invalid arguments. `read_file(**{})` is missing
-   the required `path` argument. With a JSON list, `**` fails because it
-   needs a dictionary. Both raise `TypeError` before the tool's code ever runs.
-2. Something like:
-   ```python
-   from datetime import datetime
-
-   @tool(description="Return the current local date and time.", parameters={}, required=[])
-   def get_current_time() -> str:
-       return datetime.now().isoformat(timespec="seconds")
-   ```
-   The registry and schema update themselves. Depending on the model, it may
-   use the tool right away or may stick to the three tools the system prompt
-   names. Updating the prompt (Section 3.8) makes it reliable.
-3. Small models often give up after one error and report it, like the
-   `notes.txt` run in Section 3.7. One way to help is to make the error more
-   useful, for example by adding a short list of files in the current folder
-   to the "No such file" message. Better error messages are one of the
-   cheapest ways to make an agent smarter.
-4. One approach is to check the arguments against the function's signature
-   *before* calling it, using `inspect.signature(tool_fn).bind(**tool_args)`.
-   `bind()` raises `TypeError` only when the arguments don't fit. Wrap that
-   in its own `try` and report invalid arguments there; then call the
-   function in a separate `try` where any exception, including `TypeError`,
-   counts as an exception inside the tool.
-5. When we tried it, all three runs reported honestly, for example: "The web
-   search for 'current agent harness best practices' returned no specific
-   results. Additionally, 15% of 240 is 36.0." A clear "nothing found" got a
-   clear answer, while the vague placeholder got invented findings. Your
-   results may vary, but the lesson holds: tool output should say plainly what happened
-   ("No results found for X") instead of looking like real data, and when it
-   matters, the system prompt should tell the model not to invent facts that
-   no tool returned.
+Solutions to this chapter's exercises are in [Appendix D](../appendices/appendix-d-solutions.md#chapter-3-the-tool-registry).
