@@ -184,7 +184,8 @@ module13/
 module14/
   README.md                   # roadmap from educational code to production
 book/                         # companion book (see "Companion Book" above)
-  README.md                   # table of contents and writing guidelines
+  README.md                   # table of contents and how to read the book
+  WRITING_GUIDE.md            # chapter template and style rules for authors
   _quarto.yml                 # Quarto book configuration
   chapters/                   # Before You Begin + Chapters 0-14
   appendices/                 # Appendices A-D
