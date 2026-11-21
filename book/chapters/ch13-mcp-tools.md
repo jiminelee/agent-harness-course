@@ -483,8 +483,8 @@ once local tool discovery makes sense.
 
 **`ImportError: cannot import name 'MCPServer'` (or `Client`).**
 The wrong `mcp` version is installed, or it's installed in a different
-environment. Activate your virtual environment and run
-`python -m pip install -r module13/requirements.txt`.
+environment. Activate this chapter's environment (`source .venv13/bin/activate`)
+and run `python -m pip install -r module13/requirements.txt`.
 
 **Running `tool_server.py` by itself just sits there.**
 That's expected: it's waiting for protocol messages on standard input. Don't

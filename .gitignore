@@ -1,5 +1,6 @@
 # Virtual environments
 .venv/
+.venv13/
 venv/
 
 # Python cache and build artifacts
