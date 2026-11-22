@@ -130,7 +130,8 @@ The [`book/`](book/README.md) folder contains a beginner-friendly companion
 book, *Build Your Own Agent Harness*. The module READMEs are short
 references; the book explains why each piece is built the way it is, walks
 through the code, shows real output from running every module (including the
-model's mistakes), and helps when you get stuck.
+model's mistakes), and helps when you get stuck. Read it online at
+**<https://jiminelee.github.io/agent-harness-course/>**.
 
 - **Chapter N goes with `moduleNN/`**, so you can move between the book and
   the code without translating.
