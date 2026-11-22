@@ -13,7 +13,9 @@ We fix Module 0's "no memory" problem by introducing two things:
 There are still no real tools in this module — the model can only think
 in text across multiple turns. The stopping condition is a plain text
 marker (`TASK_COMPLETE`) the model is instructed to emit when it's done,
-which our code detects and parses.
+which our code detects and parses. The prompt asks for the marker at the
+start of the final reply, but models often put it at the end, so the parser
+takes the answer from after the marker or, if that's empty, from before it.
 
 ## What's new since Module 0
 

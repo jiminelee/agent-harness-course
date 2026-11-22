@@ -116,7 +116,12 @@ def run_agent_loop(user_task: str) -> str:
 
         # --- Stopping condition check ---
         if DONE_MARKER in assistant_reply:
-            final_answer = assistant_reply.split(DONE_MARKER, 1)[1].strip()
+            # The prompt asks for the marker at the START, but models often
+            # put it at the END instead. Use the text after the marker if
+            # there is any; otherwise fall back to the text before it.
+            # Text protocols drift, so parse them defensively.
+            before, after = assistant_reply.split(DONE_MARKER, 1)
+            final_answer = after.strip() or before.strip()
             print(f"\n[STEP {turn}] Done marker found. Ending loop.")
             return final_answer
 

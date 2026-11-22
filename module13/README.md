@@ -51,12 +51,29 @@ names is only an allowlist, not executable code.
 
 ## Setup
 
-Use **Python 3.10+** and activate the project virtual environment described
+Use **Python 3.10+**. This module pins `openai==3.19.2`, which is older than
+the version the other modules were tested with, so install its dependencies
+in a **separate virtual environment** rather than the project one described
 in the [root README](../README.md). From the project root:
 
+macOS/Linux:
+
 ```bash
+python3 -m venv .venv13
+source .venv13/bin/activate
 python -m pip install -r module13/requirements.txt
 ```
+
+Windows PowerShell:
+
+```powershell
+py -m venv .venv13
+.venv13\Scripts\Activate.ps1
+python -m pip install -r module13/requirements.txt
+```
+
+Activate `.venv13` whenever you run this module, and switch back to `.venv`
+for the others.
 
 This module pins the direct dependencies to `mcp==2.2.0` and
 `openai==3.19.2`, verified together. It uses the official SDK's **MCPServer**
