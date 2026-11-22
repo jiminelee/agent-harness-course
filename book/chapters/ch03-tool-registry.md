@@ -3,7 +3,7 @@
 ## What You'll Learn
 
 - How a **decorator** lets you register a tool in one place instead of three
-- The three ways a tool call goes wrong, and how to turn each one into a
+- The four ways a tool call goes wrong, and how to turn each one into a
   message the model can read instead of a crash
 - What happens when the model has more than one tool to choose from
 
@@ -243,7 +243,7 @@ def execute_tool_call(tool_call) -> str:
         return f"ERROR: tool '{tool_name}' raised an exception: {e}"
 ```
 
-There are three failure modes, checked in the order they can happen:
+There are four failure modes, checked in the order they can happen:
 
 - **(1) Unknown tool.** The model asked for a tool that isn't registered.
   Notice the error message lists the tools that *do* exist. That's not just
@@ -538,8 +538,8 @@ steps). Both are correct.
 
 - The `@tool(...)` decorator registers the function and its schema together,
   and builds both names from `fn.__name__` so they can't drift apart.
-- `execute_tool_call()` turns the three failure modes (unknown tool, bad
-  arguments, tool exception) into `"ERROR: ..."` strings, and the loop body
+- `execute_tool_call()` turns the four failure modes (unknown tool,
+  unreadable JSON, wrong arguments, tool exception) into `"ERROR: ..."` strings, and the loop body
   shrinks to a single call.
 - With several tools, the model chooses which to use, in what order, and
   whether to call independent tools together in one response.

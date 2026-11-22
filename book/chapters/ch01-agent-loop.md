@@ -179,8 +179,8 @@ answer is to take everything after the marker:
 final_answer = assistant_reply.split(DONE_MARKER, 1)[1].strip()
 ```
 
-An earlier version of this module did exactly that. Here's what it printed
-when we ran it:
+It looks reasonable, so let's try it. We swapped this line into the loop and
+ran the default task. Here's what it printed:
 
 ```text
 [STEP 1] LLM responded:
@@ -391,7 +391,7 @@ real cost. That's the subject of Chapter 4.
 2. **Print the transcript** (easy) — At the end of `run_agent_loop()`, just
    before each `return`, add `for m in messages: print(m["role"], "→", m["content"][:60])`.
    Run it again and compare it with the table in Section 1.5.
-3. **Break it, then fix it better** (medium) — First, change line 124 back to
+3. **Break it, then fix it better** (medium) — First, change line 124 to
    `final_answer = after.strip()` and run the default task. Do you get the
    empty answer from Section 1.4? Then restore the line and handle the last
    remaining case: when the reply is *only* the marker, return the previous
