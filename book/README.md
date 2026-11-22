@@ -79,9 +79,12 @@ and classes in Chapter 12 (Section 12.2).
 
 ## Reading the Book as a Website
 
-The chapters read fine right here on GitHub. To build them into an HTML book
-with navigation, search, and drawn diagrams, install [Quarto](https://quarto.org)
-and run this from the `book/` folder:
+The book is published as a website with navigation, search, and drawn
+diagrams at **<https://jiminelee.github.io/agent-harness-course/>**. The
+chapters also read fine right here on GitHub.
+
+To build the website yourself, install [Quarto](https://quarto.org) and run
+this from the `book/` folder:
 
 ```bash
 quarto render

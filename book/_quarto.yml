@@ -6,6 +6,7 @@ book:
   title: "Build Your Own Agent Harness"
   subtitle: "A hands-on companion to the agent-harness course code"
   author: "Jimin Lee"
+  site-url: https://jiminelee.github.io/agent-harness-course/
   repo-url: https://github.com/jiminelee/agent-harness-course
   repo-subdir: book
   repo-actions: [source, issue]
