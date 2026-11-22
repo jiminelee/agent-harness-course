@@ -5,6 +5,12 @@ project:
 book:
   title: "Build Your Own Agent Harness"
   subtitle: "A hands-on companion to the agent-harness course code"
+  author: "Jimin Lee"
+  repo-url: https://github.com/jiminelee/agent-harness-course
+  repo-subdir: book
+  repo-actions: [source, issue]
+  page-footer:
+    center: "© 2026 Jimin Lee · Released under the [MIT License](https://github.com/jiminelee/agent-harness-course/blob/main/LICENSE)"
   chapters:
     - index.md
     - chapters/before-you-begin.md

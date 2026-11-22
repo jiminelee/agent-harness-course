@@ -94,3 +94,7 @@ preview that updates as you edit.
 
 If you're writing or revising chapters, see the [Writing Guide](WRITING_GUIDE.md)
 for the chapter template, style rules, and checks to run before publishing.
+
+## License
+
+The book and its code are released under the [MIT License](../LICENSE).

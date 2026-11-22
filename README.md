@@ -250,3 +250,8 @@ That process reinforced one of the central ideas behind the course:
 AI can generate and improve individual pieces of work, but the surrounding system still needs clear goals, structure, constraints, evaluation, and human judgment.
 
 The same principle applies when building agents. A capable model is only one component. Reliable behavior comes from how the complete system is designed around it.
+
+## License
+
+Everything in this repository, including the course code and the companion
+book in `book/`, is released under the [MIT License](LICENSE).
