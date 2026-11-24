@@ -192,7 +192,64 @@ Nine lines, and the whole pattern is visible: plan, loop over the plan, synthesi
 python module06/module06_planning.py
 ```
 
-Here's an actual run, with the divider lines removed:
+### What it looks like when everything works
+
+Before looking at a real run, here's what the output should look like if every
+stage does its job:
+
+```text
+USER TASK: Figure out 18% of 250, look up 'agent harness design patterns', and figure out how many days are in 6 weeks, then summarize all three findings together.
+[PLAN] Asking the LLM to decompose the task into subtasks...
+[PLAN] Decomposed into 3 subtask(s):
+  1. Calculate 18% of 250
+  2. Research 'agent harness design patterns'
+  3. Calculate the number of days in 6 weeks
+[EXECUTE 1] Working on subtask: Calculate 18% of 250
+  [subtask 1, turn 1] requested 1 tool call(s)
+    -> calculate({"expression":"0.18 * 250"}) => 45.0
+  [subtask 1] result: 18% of 250 is 45.
+[EXECUTE 2] Working on subtask: Research 'agent harness design patterns'
+  [subtask 2, turn 1] requested 1 tool call(s)
+    -> search_web({"query":"agent harness design patterns"}) => [STUB RESULT] Pretend web search results for: 'agent harness design patterns'.
+  [subtask 2] result: The search returned only a placeholder, with no details about agent harness design patterns.
+[EXECUTE 3] Working on subtask: Calculate the number of days in 6 weeks
+  [subtask 3, turn 1] requested 1 tool call(s)
+    -> calculate({"expression":"6 * 7"}) => 42
+  [subtask 3] result: There are 42 days in 6 weeks.
+[SYNTHESIZE] Combining subtask results into a final answer...
+
+FINAL ANSWER:
+18% of 250 is 45, and there are 42 days in 6 weeks. The search for "agent harness design patterns" returned only a placeholder, so there are no findings to report on that topic.
+```
+
+> This log is an illustration written by hand to show the ideal case, not a
+> captured run. The divider lines are left out.
+
+Read it from top to bottom, following the number 45:
+
+1. **Plan.** The model split the task into three subtasks, and none of them
+   needs another's answer.
+2. **Execute.** In subtask 1, the model asked for `calculate`, and our code ran
+   it and got `45.0` (the `->` line). Then the model read that tool result and
+   wrote a reply: `18% of 250 is 45.` (the `result:` line). The other subtasks
+   went the same way.
+3. **Synthesize.** The synthesizer received one line per subtask and combined
+   them:
+
+   ```text
+   Subtask 1: 18% of 250 is 45.
+   Subtask 2: The search returned only a placeholder, with no details about agent harness design patterns.
+   Subtask 3: There are 42 days in 6 weeks.
+   ```
+
+The thing to notice is the pair of lines in each subtask. The `->` line is what
+the **tool returned**. The `result:` line is what the **model wrote afterward**,
+and it's the only one passed along. When things work, the reply carries what the
+tool returned.
+
+### An actual run
+
+Now here's what we really got, again without the divider lines:
 
 ```text
 USER TASK: Figure out 18% of 250, look up 'agent harness design patterns', and figure out how many days are in 6 weeks, then summarize all three findings together.
@@ -240,18 +297,50 @@ And yet almost every stage had a problem. Let's go through them.
 Look at subtask 1. The calculator returned `45.0`, and then the subtask's
 "result" was the text `<|tool_response>`.
 
-That's not something our code wrote. It's a fragment of the model's internal
-chat format that leaked into its reply. Small models sometimes do this. We
-tested the same exchange outside the module and got `<|tool_response>` three
-times out of four, and an empty reply the fourth time.
+Compare it with the ideal log in Section 6.4. Here's subtask 1 when it works:
+
+```text
+  [subtask 1, turn 1] requested 1 tool call(s)
+    -> calculate({"expression":"0.18 * 250"}) => 45.0
+  [subtask 1] result: 18% of 250 is 45.
+```
+
+And here it is in the actual run:
+
+```text
+  [subtask 1, turn 1] requested 1 tool call(s)
+    -> calculate({"expression":"0.18 * 250"}) => 45.0
+  [subtask 1] result: <|tool_response>
+```
+
+The first two lines are identical: same tool call, same correct `45.0`. Only the
+last line differs. In the actual run, the model got the right tool result but
+didn't turn it into a reply:
+
+| Step | When it works | Actual run |
+|---|---|---|
+| Model asks for the tool | `calculate("0.18 * 250")` | `calculate("0.18 * 250")` |
+| Tool returns | `45.0` | `45.0` |
+| Model replies (**this is what gets passed on**) | `18% of 250 is 45.` | a leaked fragment, not an answer |
+| Does the synthesizer get the 45? | Yes | **No** |
+
+`<|tool_response>` isn't something our code wrote. It's a fragment of the
+model's internal chat format that leaked into its reply. Small models sometimes
+do this, and it isn't rare: when we ran this one subtask six more times on
+2026-11-24, we got a normal reply once, `<|tool_response>` four times, and an
+empty reply once.
 
 Our code doesn't check. `execute_subtask()` returns the final message no
-matter what it says, so the synthesizer received:
+matter what it says. So in the actual run, where
+subtasks 1 and 3 both leaked, the synthesizer received these two lines (among
+others):
 
 ```text
 Subtask 1: <|tool_response>
 Subtask 3: <|tool_response>
 ```
+
+If everything had worked, those lines would have carried the `45` and the `42`.
 
 So where did "18% of 250 is 45" and "42 days" in the final answer come from?
 The synthesizer **worked them out itself**. They're easy enough that it got
@@ -331,7 +420,9 @@ task as one subtask. Print `raw` to see what came back.
 
 **A subtask's result is `<|tool_response>` or empty.**
 The model leaked a piece of its chat format instead of writing a reply (see
-Problem 1). The run continues, but that subtask's information is lost.
+Problem 1, which shows a normal result next to a leaked one). The run
+continues, but that subtask's information is lost. Run it again and you may
+get a normal result.
 
 **A subtask says "Please provide..."**
 It depends on something it can't see: an earlier result, or the original task.
